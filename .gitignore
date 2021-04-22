@@ -2,3 +2,6 @@
 *.docx
 *.doc
 *.zip
+*.fig
+*.bak
+*.asv
