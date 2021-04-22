@@ -31,7 +31,7 @@
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronization Simulation");
 
-szsim=800;   %总时间
+szsim=800;   %总时�?
 T=1; %clock synchronization interval
 arbitraryNetwork=false; % false; %true;
 
@@ -139,23 +139,23 @@ A=[1 T;0 1];B=[1 T;0 1];H=[1 0;0 1];
 % empirically useful to treat 99.7% probability
 %  as near certainty.
 % Therefore, the noise range is -/+ 3*sigma
-sigma1sqr=10^-12;%有噪声 variance of offset noise 
+sigma1sqr=10^-12;%有噪�? variance of offset noise 
 sigma2sqr=10^-12;  % variance of skew noise
 sigma3sqr=10^-12; % variance of offset's measurement noise, 
                % this is equal to the noise caused by the delay jitters
-% TODO 噪声的方差 sigma^2 可根据WSN硬件平台实测数据进行调整
+% TODO 噪声的方�? sigma^2 可根据WSN硬件平台实测数据进行调整
 %  根据Zong的实测数据， CPU处理延时的均值是311us,
-%                       CPU处理延时的抖动(standard deviation)是4us
-%  CPU处理延时相当于在执行器上的扰动，理论上需要根据控制器增益K，
-%  通过K^-1 换算为 系统输出的测量值扰动  
+%                       CPU处理延时的抖�?(standard deviation)�?4us
+%  CPU处理延时相当于在执行器上的扰动，理论上需要根据控制器增益K�?
+%  通过K^-1 换算�? 系统输出的测量�?�扰�?  
 %  这里，暂且将CPU处理延迟的抖动作为测量噪声， 因此 sigma3=4us
  sigma3sqr=(4*10^(-6))^2;  % 1.6*10^-11
                
 % sigma=sigma3sqr*[1 1;1 2];
 mu=[0 0];
-R=[sigma1sqr 0;0 sigma2sqr];%过程噪声协方差矩阵
+R=[sigma1sqr 0;0 sigma2sqr];%过程噪声协方差矩�?
 % Q1=[Q zeros(2,2);zeros(2,2) Q];
-Q=[sigma3sqr sigma3sqr;sigma3sqr 2*sigma3sqr];%测量噪声协方差矩阵
+Q=[sigma3sqr sigma3sqr;sigma3sqr 2*sigma3sqr];%测量噪声协方差矩�?
 %  R1=[R zeros(2,2);zeros(2,2) R]
 fprintf("Noise levels:\r");
 fprintf("    Phase (offset) noise std = %d\r", sqrt(sigma1sqr));
@@ -165,14 +165,14 @@ fprintf("    Observation (offset) noise std = %d\r", sqrt(sigma3sqr));
 % Q=eye(2)
 
 % for k-th node, the noises is a 4-by-sz matrix stated in  
-% odd row of procNoise are (1) process noses of theta  (1-by-sz) 过程噪声中thet的随机值
-% even row of procNoise are (2) process noise of gamma (1-by-sz)  过程噪声中gamma的随机值
-% odd row of measNoise are  (3) measurement noise of theta (1-by-sz) 测量噪声中theta 的随机值(生成多维正态数据）
+% odd row of procNoise are (1) process noses of theta  (1-by-sz) 过程噪声中thet的随机�??
+% even row of procNoise are (2) process noise of gamma (1-by-sz)  过程噪声中gamma的随机�??
+% odd row of measNoise are  (3) measurement noise of theta (1-by-sz) 测量噪声中theta 的随机�??(生成多维正�?�数据）
 % odd row of measNoise are (4) measurement noise of gamma (1-by-sz)
-% 测量噪声中gamma的随机值(生成多维正态数据）
-% DXW: gamma的测量噪声来自于theta的测量噪声，不应该是独立的 ????
+% 测量噪声中gamma的随机�??(生成多维正�?�数据）
+% DXW: gamma的测量噪声来自于theta的测量噪声，不应该是独立�? ????
 %
-% for循环实现噪声向量随节点个数自动生成
+% for循环实现噪声向量随节点个数自动生�?
 procNoisew=[];
 measNoisev=[];
 for k=1:nNode
@@ -182,18 +182,19 @@ end
 
 
 % (3) TODO: Controller design
-% D =[0.377684488137080   0.046252370994938;0.030384079824661   0.384554203344394];%线性搜索LMI 改变A值所得的K
-% D=[0.4563 0.0035;0.0112 0.4723];%0.1传统LMI所得K值
-% K=[0.3200 0.0450;0.2330 0.0511];%线性搜索LMI所得K值, Hu,Sec 5, 
+% D =[0.377684488137080   0.046252370994938;0.030384079824661   0.384554203344394];%线�?�搜索LMI 改变A值所得的K
+% D=[0.4563 0.0035;0.0112 0.4723];%0.1传统LMI�?得K�?
+% K=[0.3200 0.0450;0.2330 0.0511];%线�?�搜索LMI�?得K�?, Hu,Sec 5, 
 
 % gain matrix for tree20 network 
-   K01=[0.1 0;0 0.1];%原来的初始值
-    K02=[0.3517 -0.1997;0.0159 0.2565];%以传统中得到的优化后的增益作为初始值,J变大了10-14
-    K03=[0.3338 -0.0840;0.0133 0.3034];%以传统中得到的优化后的增益作为初始值 10-14  10-16
+   K01=[0.1 0;0 0.1];%原来的初始�??
+    K02=[0.3517 -0.1997;0.0159 0.2565];%以传统中得到的优化后的增益作为初始�??,J变大�?10-14
+    K03=[0.3338 -0.0840;0.0133 0.3034];%以传统中得到的优化后的增益作为初始�?? 10-14  10-16
     
-% K=K03;   
-% K0=K;
-% Linearsearch20shu
+ % K=K03;   
+ K0=K03;
+ DEBUGPLOT=false;
+ Linearsearch20shu
 % load goodK_2069e_10.mat
 % load goodK_9253e_10.mat
 % load goodK_nonLMI_2698e_08.mat
@@ -276,7 +277,7 @@ disp(sprintf("Network size: %d nodes. Topology: L=", nNode));
 listnonServoClk=[];
 listRefClk=[];
 while true
-    nID=input('Any clock node you want to change to non-sevo clock? \n Type the node ID (0 for nothing to change): ');
+    nID=input('Any clock node you want to change to non-sevo clock? \n     Type the node ID (0 for nothing to change): ');
     if nID==0
         break;
     end
@@ -315,7 +316,7 @@ end
 yk=y1(:,1);
 yk=y2(:,1);
 Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
-yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1));%误差向量（输出-输出均值）胡equ29  ??
+yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1));%误差向量（输�?-输出均�?�）胡equ29  ??
    
 %%  Simulating the Networked Synchronization controller 
 disp('Now start simulation ');
@@ -333,7 +334,7 @@ figure('Name','Simulation Animation');
     % ax = axes; ax.ColorOrder = cm;
 
 
-A1=kron(eye(nNode),A);%克罗内克积
+A1=kron(eye(nNode),A);%克罗内克�?
 % D=[alpha(i,j) 0;0 beta(i,j)];
 BK=B*K;  % variable D for the feedback gain matrix K in Hu2019
 BK1=kron(L,BK);
@@ -361,18 +362,18 @@ for k = 2:szsim
     y2(:,k)=xx2(:,k)+measNoisev(:,k); % output updates
 
     % y-base sys, noise-free      
-    y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1);%w输出Y值 胡 eq 28
-    xx1(:,k)=y1(:,k);%状态X值
+    y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1);%w输出Y�? �? eq 28
+    xx1(:,k)=y1(:,k);%状�?�X�?
 
 %    % noisy y-base system
 %     v1=measNoisev(:,k-1);  % DXW: replace he next two lines
 %     v2=measNoisev(:,k);
 %               
 %     % Rearrange the closed system as Y being the state variable of interest
-%    % y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1)+procNoisew(:,k-1)+v2-A1*v1;%w输出Y值 胡 eq 28
-%     y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1)+procNoisew(:,k-1)+v2-A1*v1+BK1*v1;%w输出Y值 胡 eq 28
+%    % y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1)+procNoisew(:,k-1)+v2-A1*v1;%w输出Y�? �? eq 28
+%     y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1)+procNoisew(:,k-1)+v2-A1*v1+BK1*v1;%w输出Y�? �? eq 28
 %   
-%     xx1(:,k)=y(:,k)-v2;%状态X值
+%     xx1(:,k)=y(:,k)-v2;%状�?�X�?
 %     % proof: how x and y are swaped
 %     % y=x+v2
 %     % xk+v2=A*(xk-1+v1)-BK*(xk-1+v1)+wk-1+v2-A*v1+BK*v1
@@ -398,7 +399,7 @@ for k = 2:szsim
     yk=y(:,k);
     Ybar(:,k)=[mean(yk(indTheta)');mean(yk(indSkew)')];
     Ystd(:,k)=[std(yk(indTheta)');std(yk(indSkew)')];
-    yerr(:,k)=yk-kron(ones(nNode,1),Ybar(:,k));%误差向量（输出-输出均值）胡equ29  ??
+    yerr(:,k)=yk-kron(ones(nNode,1),Ybar(:,k));%误差向量（输�?-输出均�?�）胡equ29  ??
    
     subplot(2,2,1);
     drawTrajectory(xx(indTheta,1:k))
@@ -468,42 +469,42 @@ y=y2;
 xx=xx2;
 %         figure(1)
 %         plot([1:sz],xx)
-%         legend('节点1 offset状态值','节点1 skew状态值','节点2 offset状态值','节点2 skew状态值','节点3 offset状态值','节点3 skew状态值','节点4 offset状态值','节点4 skew状态值');       
-%         xlabel('n');ylabel('状态值');
+%         legend('节点1 offset状�?��??','节点1 skew状�?��??','节点2 offset状�?��??','节点2 skew状�?��??','节点3 offset状�?��??','节点3 skew状�?��??','节点4 offset状�?��??','节点4 skew状�?��??');       
+%         xlabel('n');ylabel('状�?��??');
 %         
 %         figure(2)
 %         plot([1:sz],y)
-%         legend('节点1 offset输出值','节点1 skew输出值','节点2 offset输出值','节点2 skew输出值','节点3 offset输出值','节点3 skew输出值','节点4 offset输出值','节点4 skew输出值');
-%         xlabel('n');ylabel('输出值');
+%         legend('节点1 offset输出�?','节点1 skew输出�?','节点2 offset输出�?','节点2 skew输出�?','节点3 offset输出�?','节点3 skew输出�?','节点4 offset输出�?','节点4 skew输出�?');
+%         xlabel('n');ylabel('输出�?');
         
         figure(3)
         subplot(2,2,1)
         for kk=1:2:2*nNode-1
             plot([1:szsim],xx(kk,:));hold on
         end
-      %    legend('节点1 offset状态值','节点2 offset状态值','节点3 offset状态值','节点4 offset状态值','节点5 offset状态值','节点6 offset状态值','节点7 offset状态值','节点8 offset状态值','节点9 offset状态值','节点10 offset状态值','节点11 offset状态值','节点12 offset状态值');
-        xlabel('n');ylabel('状态值');
+      %    legend('节点1 offset状�?��??','节点2 offset状�?��??','节点3 offset状�?��??','节点4 offset状�?��??','节点5 offset状�?��??','节点6 offset状�?��??','节点7 offset状�?��??','节点8 offset状�?��??','节点9 offset状�?��??','节点10 offset状�?��??','节点11 offset状�?��??','节点12 offset状�?��??');
+        xlabel('n');ylabel('状�?��??');
         
         subplot(2,2,2)
         for kk=2:2:2*nNode
             plot([1:szsim],xx(kk,:));hold on
         end
-       % legend('节点1 skew状态值','节点2 skew状态值','节点3 skew状态值','节点4 skew状态值','节点5 skew状态值','节点6 skew状态值','节点7 skew状态值','节点8 skew状态值','节点9 skew状态值','节点10 skew状态值','节点11 skew状态值','节点12 skew状态值');
-        xlabel('n');ylabel('状态值');
+       % legend('节点1 skew状�?��??','节点2 skew状�?��??','节点3 skew状�?��??','节点4 skew状�?��??','节点5 skew状�?��??','节点6 skew状�?��??','节点7 skew状�?��??','节点8 skew状�?��??','节点9 skew状�?��??','节点10 skew状�?��??','节点11 skew状�?��??','节点12 skew状�?��??');
+        xlabel('n');ylabel('状�?��??');
         
         subplot(2,2,3)
       for kk=1:2:2*nNode-1
             plot([1:szsim],y(kk,:));hold on
         end
-       % legend('节点1 offset输出值','节点2 offset输出值','节点3 offset输出值','节点4 offset输出值','节点5 offset输出值','节点6 offset输出值','节点7 offset输出值','节点8 offset输出值','节点9 offset输出值','节点10 offset输出值','节点11 offset输出值','节点12 offset输出值');
-        xlabel('n');ylabel('输出值');
+       % legend('节点1 offset输出�?','节点2 offset输出�?','节点3 offset输出�?','节点4 offset输出�?','节点5 offset输出�?','节点6 offset输出�?','节点7 offset输出�?','节点8 offset输出�?','节点9 offset输出�?','节点10 offset输出�?','节点11 offset输出�?','节点12 offset输出�?');
+        xlabel('n');ylabel('输出�?');
         
         subplot(2,2,4)
         for kk=2:2:2*nNode
             plot([1:szsim],y(kk,:));hold on
         end
-        % legend('节点1 skew输出值','节点2 skew输出值','节点3 skew输出值','节点4 skew输出值','节点5 skew输出值','节点6 skew输出值','节点7 skew输出值','节点8 skew输出值','节点9 skew输出值','节点10 skew输出值','节点11 skew输出值','节点12 skew输出值');
-        xlabel('n');ylabel('输出值');
+        % legend('节点1 skew输出�?','节点2 skew输出�?','节点3 skew输出�?','节点4 skew输出�?','节点5 skew输出�?','节点6 skew输出�?','节点7 skew输出�?','节点8 skew输出�?','节点9 skew输出�?','节点10 skew输出�?','节点11 skew输出�?','节点12 skew输出�?');
+        xlabel('n');ylabel('输出�?');
       
       % 
         for kk=1:2*nNode

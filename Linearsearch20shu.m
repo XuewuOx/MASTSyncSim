@@ -1,6 +1,8 @@
 % clear all
 % clc
-DEBUGPLOT = true; % switch to plot medium results for debug
+if ~exist('DEBUGPLOT','var')
+    DEBUGPLOT = false; % switch to plot medium results for debug
+end
 
 disp(" ****  Opimize K for Mimimum Variance  **** ");
 if ~exist('A','var') ||~exist('B','var')
@@ -161,7 +163,7 @@ for i=1:szopt
     end
     deltak=dec2mat(lmis1,xopt1,k);
     fprintf("      best objective value deltaK: %d at deltaK=\n",copt1);
-    disp(deltak);
+    if DEBUGPLOT  disp(deltak); end;
     
     
     % K=K+ Kasi* Delta K
@@ -271,7 +273,7 @@ for i=1:szopt
     allK(i,:,:)=K;
     %  k2=sqrt(k1(1,1)^2+k1(1,2)^2+k1(2,1)^2+k1(2,2)^2)/2;
     if size_kchange<taok%taok为迭代终止最小正阈值
-        fprintf("Termination condition |kasi*deltak| = %d < taok =%d met. End", size_kchangex, taok);
+        fprintf("Termination condition |kasi*deltak| = %d < taok =%d met. End\n", size_kchange, taok);
         break;
     else
         K=K+kasi*deltak;
@@ -285,7 +287,7 @@ for i=1:szopt
 end  % end for K
  
  disp(['Optimal K is found after ', num2str(i), '  episodes']);
- disp(K);
+ format long; disp(K); format short;
  disp(" ****  Done. Opimize K for Mimimum Variance  **** ");   
  
  % check the stability
