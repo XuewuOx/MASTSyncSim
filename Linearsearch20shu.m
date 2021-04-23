@@ -32,8 +32,8 @@ B3=-B2;B5=-B4;B7=-B6;B9=-B8;B11=-B10;B13=-B12;B15=-B14;B17=-B16;B19=-B18;B21=-B2
 % check if noise covariance matrix R Q have been defined
 if ~exist('R','var') || ~exist('Q','var') 
   % Q, R not defined, set with default values
-  R=10^-12*[1 0;0 1];%0416过程噪声
-  Q=10^-12*[1 1;1 2];%测量噪声
+  R=10^-16*[1 0;0 1];%0416过程噪声
+  Q=10^-14*[1 1;1 2];%测量噪声
 end
 
 fprintf("Process Noise Cov R="); disp(R);
