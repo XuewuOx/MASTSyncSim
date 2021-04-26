@@ -1,9 +1,0 @@
-我重新跑了几组仿真，写了一个作图程序
-plotResults4Paper.m
-仿真的结果保存在数据文件中，
-Result_Knewa_noise0*.mat
-Result_Kold_noise0*.mat
-noise03 的效果对比最明细显，这个也是用noise03做得
-
-
-相关图像文件也保存下来了
