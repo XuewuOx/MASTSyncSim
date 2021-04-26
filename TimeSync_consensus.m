@@ -61,73 +61,20 @@ if arbitraryNetwork
     
 else
     % Network topology specified by the Laplacian matrix L
-    L3=[1 -1 0;
-        -1 2 -1;
-        0 -1 1];
-    L4=[1 -1 0 0;
-        -1 2 -1 0;
-        0 -1 2 -1;
-        0 0  -1 1];
-    
-    L4r=[1 -1 0 0;
-        -1 3 -1 -1;
-        0 -1 1 0;
-        0 -1 0 1];
-    % L12: 12 nodes linear network
-    L12=[1 -1 0 0 0 0 0 0 0 0 0 0;
-        -1 2 -1 0 0 0 0 0 0 0 0 0;
-        0 -1 2 -1 0 0 0 0 0 0 0 0;
-        0 0 -1 2 -1 0 0 0 0 0 0 0;
-        0 0 0 -1 2 -1 0 0 0 0 0 0;
-        0 0 0 0 -1 2 -1 0 0 0 0 0;
-        0 0 0 0 0 -1 2 -1 0 0 0 0;
-        0 0 0 0 0 0 -1 2 -1 0 0 0;
-        0 0 0 0 0 0 0 -1 2 -1 0 0;
-        0 0 0 0 0 0 0 0 -1 2 -1 0;
-        0 0 0 0 0 0 0 0 0 -1 2 -1;
-        0 0 0 0 0 0 0 0 0 0 -1 1;
-        ];%单线
-    % L12c: 12 nodes circular network
-    L12c=[2 -1 0 0 0 0 0 0 0 0 0 -1;
-        -1 2 -1 0 0 0 0 0 0 0 0 0;
-        0 -1 2 -1 0 0 0 0 0 0 0 0;
-        0 0 -1 2 -1 0 0 0 0 0 0 0;
-        0 0 0 -1 2 -1 0 0 0 0 0 0;
-        0 0 0 0 -1 2 -1 0 0 0 0 0;
-        0 0 0 0 0 -1 2 -1 0 0 0 0;
-        0 0 0 0 0 0 -1 2 -1 0 0 0;
-        0 0 0 0 0 0 0 -1 2 -1 0 0;
-        0 0 0 0 0 0 0 0 -1 2 -1 0;
-        0 0 0 0 0 0 0 0 0 -1 2 -1;
-        -1 0 0 0 0 0 0 0 0 0 -1 2;
-        ];%环形
-    % Lsu12=[2 -1 -1 0 0 0 0 0 0 0 0 0;
-    %   -1 3 0 -1 -1 0 0 0 0 0 0 0;
-    %   -1 0 3 0 0 -1 -1 0 0 0 0 0;
-    %   0 -1 0 3 0 0 0 -1 -1 0 0 0;
-    %   0 -1 0 0 3 0 0 0 0 -1 -1 0;
-    %   0 0 -1 0 0 1 0 0 0 0 0 0;
-    %   0 0 -1 0 0 0 2 0 0 0 0 -1;
-    %   0 0 0 -1 0 0 0 1 0 0 0 0;
-    %   0 0 0 -1 0 0 0 0 1 0 0 0;
-    %   0 0 0 0 -1 0 0 0 0 1 0 0;
-    %   0 0 0 0 -1 0 0 0 0 0 1 0;
-    %   0 0 0 0 0 0 -1 0 0 0 0 1
-    % ];%树形
-    L=L12c;
-    % L=L4;
-    [netG,L]=genNetbyL();
+    typicalLaplacian
+        
+    % L=L12c;
+    L=Lhuan20; % 20 node circle network
+    % L=Lshu20;
+    [netG,L]=genNetbyL(L);
     % nNode=length(L);% number of nodes
     % nEdge=trace(L)/2; % number of edges
 end
 
-% update the nNode and nEdge, as they may be changed due to spannning tree
-nNode=numnodes(netG);% number of nodes
-nEdge=numedges(netG); % number of edges
 % any changes to the network and clock configuraiton 
-disp(sprintf("Network created with : %d nodes.%d edges", nNode,nEdge));
+fprintf("Network created with : %d nodes.%d edges", nNode,nEdge);
 % disp(L);
-%% Simulaiton Configuration 2: Clock, noises and controller
+%% Simulaiton Configuration 2a: Clock and noises Q R
 
 A=[1 T;0 1];B=[1 T;0 1];H=[1 0;0 1];
 
@@ -180,27 +127,37 @@ procNoisew((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr
 measNoisev((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
 end
 
-
+%% Simulaiton Configuration 2a: Controller Design  
 % (3) TODO: Controller design
 % D =[0.377684488137080   0.046252370994938;0.030384079824661   0.384554203344394];%线性搜索LMI 改变A值所得的K
 % D=[0.4563 0.0035;0.0112 0.4723];%0.1传统LMI所得K值
 % K=[0.3200 0.0450;0.2330 0.0511];%线性搜索LMI所得K值, Hu,Sec 5, 
 
-% gain matrix for tree20 network 
+Kname='Knewa';  % give a name to the K, for saving simulation results 
+                % e.g., Ka_c20, Ka_tree20
+NoiseSeq=5; % name for a repoeatd simulation, for saving simulaiton reults
+
+% 1. Controllers gain matrices for tree20 network 
    K01=[0.1 0;0 0.1];%原来的初始值
-    K02=[0.3517 -0.1997;0.0159 0.2565];%以传统中得到的优化后的增益作为初始值,J变大了10-14
-    K03=[0.3338 -0.0840;0.0133 0.3034];%以传统中得到的优化后的增益作为初始值 10-14  10-16
+   K02=[0.3517 -0.1997;0.0159 0.2565];%以传统中得到的优化后的增益作为初始值,J变大了10-14
+   K03=[0.3338 -0.0840;0.0133 0.3034];%以传统中得到的优化后的增益作为初始值 10-14  10-16
 
-    Knewa =[0.089267697012743  -0.071498708323390;  0.097945896670515   0.299574632312155];
-    Knewb=[0.136517830649692  -0.072338483097365; 0.080167639975444   0.297171905799192];
-     K0=K03;
- DEBUGPLOT=true;
- Linearsearch20shu; %注释掉就是传统的
-%  K=K03;   
-%K=Knewa;
-% Kname='Knewa';
-NoiseSeq=5;
-
+   Knewa =[0.089267697012743  -0.071498708323390;  0.097945896670515   0.299574632312155];
+   Knewb=[0.136517830649692  -0.072338483097365; 0.080167639975444   0.297171905799192];
+   K0=K03;
+   DEBUGPLOT=false;
+   Linearsearch20shu; %注释掉就是传统的
+    %  K=K03;   
+    %K=Knewa;
+ 
+% 2. Controllers gain matrices for circle20 (huan20) network 
+  % by using traditional LMI design (no linear search)
+  % KbyLMITra_huan20
+   Kc20=[0.3526 -0.1309; 0.0216  0.3234];
+%   K = Kc20;
+   
+  
+  
  % load goodK_2069e_10.mat
 % load goodK_9253e_10.mat
 % load goodK_nonLMI_2698e_08.mat
@@ -223,6 +180,10 @@ format long
 fprintf("Control Gain K="); disp(K);
 format short
 
+
+
+
+%% Simulaiton Configuration 2c: Initial states 
 % (1) Initial value of Clock offset and skew
 % (1a) set initial state values
 % 1.  Identical clocks: all nodes's [offset, skew]=[100, 20]
@@ -247,15 +208,6 @@ fprintf("Clock initial values:\r");
 fprintf("    Offset %d +/- %d us \r", a0, a);
 fprintf("    Skew  %d +/- %d ppm\r ", b0, b);
 
-
-
-%
-%  [alpha,beta]=meshgrid(0.01:0.01:0.58,0.01:0.01:0.58);
-%inv(B)
-%     D=[alpha 0;0 beta];
-%   D=inv(B)*A
-%  eig(D)
-
 % internal variables for clock state, output and sync errors
 % %noKalman
 y1=zeros(2*nNode,szsim); % output, a matrix for outputs at all sz simulation steps
@@ -277,8 +229,19 @@ y2(:,1)=xx2(:,1)+measNoisev(:,1);
 xx2(:,1)=x0;
 y2(:,1)=x0;
 
-% last check before start simulation
-disp(sprintf("Network size: %d nodes. Topology: L=", nNode));
+% initial errors for interation from k=2  
+yk=y1(:,1);
+yk=y2(:,1);
+Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
+yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1));%误差向量（输出-输出均值）胡equ29  ??
+   
+% update the nNode and nEdge, as they may be changed due to spannning tree
+nNode=numnodes(netG);% number of nodes
+nEdge=numedges(netG); % number of edges
+
+% Revise the network to fit the topology needs
+% Set the non-servo clock, reference clock and initial states
+fprintf("Network size: %d nodes. Topology: L=", nNode);
 % disp(L);
 listnonServoClk=[];
 listRefClk=[];
@@ -316,14 +279,6 @@ while true
    [netG L]=genNetbyL(L);
 end
 
-
-
-% initial errors for interation from k=2  
-yk=y1(:,1);
-yk=y2(:,1);
-Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
-yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1));%误差向量（输出-输出均值）胡equ29  ??
-   
 %%  Simulating the Networked Synchronization controller 
 disp('Now start simulation ');
 hfigsim=figure('Name','Simulation Animation'); 
@@ -490,6 +445,7 @@ xvarsorted=sortrows(xthetavar',[2]); % sort in ascending order based on the elem
 disp("node (in ascending theta var) ="); disp(xvarsorted(:,1)');
 disp("                    theta var ="); disp(xvarsorted(:,2)');
 
+disp("Simulaiton Results Statistics End");
 return;
 %%  plot results for visualization
 figure('name','Sychronization offset error');
