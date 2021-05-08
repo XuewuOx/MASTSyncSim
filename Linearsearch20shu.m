@@ -296,7 +296,7 @@ if (stableFlag==false)
     warning("Optimization gives an Un-stable control gain matrix");
 end
 
-   nID=input('Would you like to view with the Non-stable eigenvalues? \n','s');
+   nID=input('Would you like to view with the eigenvalues? \n','s');
     if nID=='y' ||  nID=='Y'      
         DEBUGPLOT=true;
     else
