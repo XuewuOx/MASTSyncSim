@@ -112,62 +112,14 @@ procNoisew((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr
 measNoisev((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
 end
 
-%% Simulaiton Configuration 2a: Controller Design  
-% (3) TODO: Controller design
-% D =[0.377684488137080   0.046252370994938;0.030384079824661   0.384554203344394];%线性搜索LMI 改变A值所得的K
-% D=[0.4563 0.0035;0.0112 0.4723];%0.1传统LMI所得K值
-% K=[0.3200 0.0450;0.2330 0.0511];%线性搜索LMI所得K值, Hu,Sec 5, 
+%% Simulaiton Configuration 2b: Controller Design  
+% static control gain is obtained by using the LMI technique
+K=[-0.0021 0.0000; 
+    0.0001 -0.0026];
 
-Kname='K';  % give a name to the K, for saving simulation results 
-                % e.g., Ka_c20, Ka_tree20
-NoiseSeq=13; % name for a repoeatd simulation, for saving simulaiton reults
-
-% 1. Controllers gain matrices for tree20 network 
-   K01=[0.1 0;0 0.1];%原来的初始值
-   K02=[0.3517 -0.1997;0.0159 0.2565];%以传统中得到的优化后的增益作为初始值,J变大了10-14
-   K03=[0.3338 -0.0840;0.0133 0.3034];%以传统中得到的优化后的增益作为初始值 10-14  10-16
-
-   Knewa =[0.089267697012743  -0.071498708323390;  0.097945896670515   0.299574632312155];
-   Knewb=[0.136517830649692  -0.072338483097365; 0.080167639975444   0.297171905799192];
-   K0=K03;
-   DEBUGPLOT=false;
-   Linearsearch20shu; %注释掉就是传统的
-    %  K=K03;   
-    %K=Knewa;
- 
-% 2. Controllers gain matrices for circle20 (huan20) network 
-  % by using traditional LMI design (no linear search)
-  % KbyLMITra_huan20
-   Kc20=[0.3526 -0.1309; 0.0216  0.3234];
-%   K = Kc20;
-   
-  
-  
- % load goodK_2069e_10.mat
-% load goodK_9253e_10.mat
-% load goodK_nonLMI_2698e_08.mat
-% szsim=400; 
- 
-%  K=[0.3338 -0.0840;0.0133 0.3034];
-%     mean value of all nodes at end: [offsetba=8.398589e-02 skewbar=2.098934e-04]
-%    with standard deviation [3.662655e-07, 1.559589e-07]
-
-%  K=[-0.0116 0.0014;0.0101 0.1002];%绾挎?ф悳绱㈢殑
-%   mean value of all nodes at end: [offsetba=8.399398e-02 skewbar=2.100283e-04]
-%    with standard deviation [2.623130e-04, 2.732936e-06]
-% K=[0.0446 0.0337;0.0327 0.0562];
-%   mean value of all nodes at end: [offsetba=8.398976e-02 skewbar=2.100030e-04]
-%    with standard deviation [3.793082e-05, 6.394281e-06]
-% K=[0.3322 -0.0797;0.0118 0.3035];
-%    mean value of all nodes at end: [offsetba=8.398261e-02 skewbar=2.099536e-04]
-%    with standard deviation [3.613055e-07, 1.946393e-07]
 format long   
-fprintf("Control Gain K="); disp(K);
+fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
 format short
-
-
-
-
 %% Simulaiton Configuration 2c: Initial states 
 % (1) Initial value of Clock offset and skew
 % (1a) set initial state values
