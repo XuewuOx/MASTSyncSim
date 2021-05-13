@@ -1,7 +1,7 @@
 % % ***********************************************************************
 % * Descriptoin: the code in this branch is used to simulate the network
 %               under the PI controller, the corresponding paper is
-%               submitted to IEEE Trans. Ind. Informat. for peer review
+%               submitted to IEEE Internet of Things J. for peer review
 % * Limitation: the code can run on the MATLAB R2020b
 % % ***********************************************************************
 clear all;
