@@ -1,41 +1,19 @@
-% % ***************************************************************************
-% % * 
-% * Created on:  31 03 2021
-% * Modified on: 08.05.2021
-% * 
-% * Author:      Xuweu Dai
-% *
-% * File:        TimeSync_consensus.m
-% *
-% *
-% * This program is free software: you can redistribute it and/or modify
-% * it under the terms of the GNU Lesser General Public License as published by
-% * the Free Software Foundation, either version 3 of the License, or
-% * (at your option) any later version.
-% 
-% * This program is distributed in the hope that it will be useful,
-% * but WITHOUT ANY WARRANTY; without even the implied warranty of
-% * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% * GNU Lesser General Public License for more details.
-% *
-% %              _
-% %  \/\ /\ /   /  * _  '
-% % _/\ \/\/ __/__.'(_|_|_
-% % **************************************************************************/
-%%
-% clear all;
-% close all;
-% clc;
-
-
+% % ***********************************************************************
+% * Descriptoin: the code in this branch is used to simulate the network
+%               under the static controller, the corresponding paper is
+%               submitted to IEEE Internet of Things J. Special Issue for 
+%               peer review
+% * Limitation: the code can run on the MATLAB R2020b
+% % ***********************************************************************
+clear all;
+close all;
+clc;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronization Simulation");
 
-szsim=800;   %×ÜÊ±¼ä
-T=1; %clock synchronization interval
-arbitraryNetwork=false; % false; %true;
-
-
+szsim=800; % simulation time
+arbitraryNetwork=false;
+% ToDo
 if arbitraryNetwork 
     % Random network generation
     nNode=20; nEdge=20;  
@@ -80,8 +58,10 @@ fprintf("Network created with : %d nodes.%d edges", nNode,nEdge);
 
 % disp(L);
 %% Simulaiton Configuration 2a: Clock and noises Q R
-
-A=[1 T;0 1];B=[1 T;0 1];H=[1 0;0 1];
+T=1; % clock synchronization interval
+A=[1 T;0 1];
+B=[1 0;0 1];
+H=[1 0;0 1]; % ToDo
 
 % (1) genertion of process and measurement noises
 % According to the 3Sigma rule of Gaussian distribution
