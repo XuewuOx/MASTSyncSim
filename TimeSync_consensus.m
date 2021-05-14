@@ -45,14 +45,19 @@ if arbitraryNetwork
     nEdge=numedges(netG); nNode=numnodes(netG);
 else
     % Network topology specified by the Laplacian matrix L
-    typicalLaplacian
-        
-    % L=L12c;
-    % L=Lhuan20; % 20 node circle network
-    L=Lshu21;
+    L=[1 -1  0  0  0  0  0  0  0;
+      -1  1  0  0  0  0  0  0  0;
+       0 -1  1  0  0  0  0  0  0;
+       0  0 -1  1  0  0  0  0  0;
+       0  0  0 -1  1  0  0  0  0;
+       0  0  0  0 -1  1  0  0  0;
+       0  0  0  0  0 -1  1  0  0;
+       0  0  0  0  0  0 -1  1  0;
+       0  0  0  0  0  0  0 -1  1;]; % directed 8-hop linear network
+
     Lms=tril(L,-1)+eye(length(L)); 
     [netG,L]=genNetbyL(Lms);
-   [netG,L]=genNetbyL(Lshu21);
+    [netG,L]=genNetbyL(L);
     nNode=length(L);% number of nodes
     nEdge=trace(L)/2; % number of edges
 end
