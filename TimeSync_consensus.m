@@ -149,9 +149,6 @@ x(:,1)=x0(1:2*nNode); % system state
 y(:,1)=x(:,1)+measNoise(:,1); % system output
 yy(:,1)=x(:,1); % for performance evaluation
 
-% x(:,1)=x0; % ToDo
-% y(:,1)=x0; % ToDo
-
 % initial errors for interation from k=2  
 yk=yy(:,1);
 Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
