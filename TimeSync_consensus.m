@@ -1,9 +1,15 @@
-% % ***********************************************************************
+% % ***************************************************************************
+% * Created on:  31/03/2021
+% * Modified on: 13/05/2021
+% * 
+% * Author:      Yan Zong, Xuewu Dai
+% *
 % * Descriptoin: the code in this branch is used to simulate the network
-%               under the static controller, the corresponding paper is
-%               submitted to IEEE Internet of Things J. Special Issue for 
-%               peer review
-% * Limitation: the code can run on the MATLAB R2020b
+% *              under the static controller, the corresponding paper is
+% *              submitted to IEEE Internet of Things J. Special Issue for 
+% *              peer review.
+% *
+% * IDE:         MATLAB R2020b
 % % ***********************************************************************
 clear all;
 close all;
@@ -61,7 +67,6 @@ fprintf("Network created with : %d nodes.%d edges", nNode,nEdge);
 T=1; % clock synchronization interval
 A=[1 T;0 1];
 B=[1 0;0 1];
-H=[1 0;0 1]; % ToDo
 
 % (1) genertion of process and measurement noises
 % According to the 3Sigma rule of Gaussian distribution
@@ -120,35 +125,21 @@ K=[-0.0021 0.0000;
 format long   
 fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
 format short
-%% Simulaiton Configuration 2c: Initial states 
-% (1) Initial value of Clock offset and skew
-% (1a) set initial state values
-% 1.  Identical clocks: all nodes's [offset, skew]=[100, 20]
-x0_noisefree=10^(-6)*kron(ones(nNode,1),[100,20]');
-% 10^(-6)*[100; 20; 100; 20; 100; 20; 100; 20; 100; 20; 100; 20; 100; 20; ...
-%            100; 20; 100; 20; 100; 20; 100; 20; 100; 20];
-
-% 2. Non-identical clocks
-a0=0; % offset 100us 
-b0=20; % skew 20ppm
-a=500; % offset inittial value variation range: +/- 40 uniform distribution
-b=30; % skew initial value variation raange: +/- 20 uniform distribution
-iniOffset=a0+a*2*(rand(1,nNode)-0.5); stdOffset=sqrt((2*a)^2/12); % std for uniform dist.
-iniSkew=b0+b*2*(rand(1,nNode)-0.5); stdSkew=sqrt((2*b)^2/12); %  sqrt((max-min)^2/12)std for uniform dist.
-x0=10^(-6)*reshape([iniOffset;iniSkew],[],1);
-% x0=10^(-6)*[10:10:2*nNode*10];
-% illusrate the distributation of initial values 
-% figure('name','distribution of inital values'); 
-% subplot(2,1,1);hold on; plot(x0(1:2:end-1),'o-r'); title('Offset Initial Values'); grid on;ylabel('sec'); xlabel('node ID');
-% subplot(2,1,2);hold on; plot(x0(2:2:end),'o-r'); title('Skew Initial Values');grid on;ylabel('ppm-like');xlabel('node ID');
-
-% x0(2)=0; x0(1)=0; % set node 1 as ideal pefect clock
-% x0=10^(-6)*[99.36; 19.25; 99.3; 19.3; 98.7; 18.5; 99.8; 19.8; 99.36; 19.5; ...
-%             99.3; 19.3; 98.7; 18.5; 99.8; 19.8; 99.36;19.5; 99.3;  19.3;
-%             98.7; 18.5; 99.8; 19.8];
-fprintf("Clock initial values:\r");
-fprintf("    Offset %d +/- %d us (std=%d us) \r", a0, a, stdOffset);
-fprintf("    Skew  %d +/- %d ppm  (std=%d ppm)\r ", b0, b,stdSkew);
+%% Simulaiton Configuration 2c: Clock & Networked State Initialisation
+% initialising the clock offset and skew (between 0 and 50ppm)
+a0=600000; % initial offset is 600ms 
+b0=25; % initial skew is 25ppm
+a=200000; % initial offset variation range: +/- 200 ms uniform distribution
+b=25;   % initial skew variation raange: +/- 25 uniform distribution
+iniOffset=a0+a*2*(rand(1,nNode)-0.5); 
+stdOffset=sqrt((2*a)^2/12); % std. dev. for uniform dist. sqrt((max-min)^2/12)
+iniSkew=b0+b*2*(rand(1,nNode)-0.5); 
+stdSkew=sqrt((2*b)^2/12); % std. dev. for uniform dist.
+x0=10^(-6)*reshape([iniOffset;iniSkew],[],1); % reshape matrix to have specified 
+                                              % number (i.e. 1) of columns
+fprintf("initial system state x[0]:\r");
+fprintf("    clock offset %d +/- %d us, & std=%d us \r", a0, a, stdOffset);
+fprintf("    clock skew %d +/- %d ppm, & std=%d ppm \r", b0, b, stdSkew);
 
 % internal variables for clock state, output and sync errors
 % %noKalman
