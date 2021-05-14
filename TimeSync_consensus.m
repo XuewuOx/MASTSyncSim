@@ -131,11 +131,11 @@ a0=600000; % initial offset is 600ms
 b0=25; % initial skew is 25ppm
 a=200000; % initial offset variation range: +/- 200 ms uniform distribution
 b=25;   % initial skew variation raange: +/- 25 uniform distribution
-iniOffset=a0+a*2*(rand(1,nNode)-0.5); 
+theta0=a0+a*2*(rand(1,nNode)-0.5); 
 stdOffset=sqrt((2*a)^2/12); % std. dev. for uniform dist. sqrt((max-min)^2/12)
-iniSkew=b0+b*2*(rand(1,nNode)-0.5); 
+gamma0=b0+b*2*(rand(1,nNode)-0.5); 
 stdSkew=sqrt((2*b)^2/12); % std. dev. for uniform dist.
-x0=10^(-6)*reshape([iniOffset;iniSkew],[],1); % reshape matrix to have specified 
+x0=10^(-6)*reshape([theta0;gamma0],[],1); % reshape matrix to have specified 
                                               % number (i.e. 1) of columns,
                                               % the unit is "us"
 fprintf("initial system state x[0]:\r");
@@ -143,10 +143,9 @@ fprintf("    clock offset %d +/- %d us, & std=%d us \r", a0, a, stdOffset);
 fprintf("    clock skew %d +/- %d ppm, & std=%d ppm \r", b0, b, stdSkew);
 
 % internal variables for clock state, output and sync errors
-y=zeros(2*nNode,szsim); % output, a matrix for outputs at all sz simulation steps
 x=zeros(2*nNode,szsim); % state, a matrix for states at all sz simulation steps
-
-yerr=zeros(2*nNode,szsim); % output errors
+y=zeros(2*nNode,szsim); % output, a matrix for outputs at all sz simulation steps
+yerr=zeros(2*nNode,szsim); % synchronisation error
 
 indTheta=1:2:nNode*2-1;  % row index for theta
 indSkew=2:2:nNode*2; % row index for skew
@@ -154,14 +153,14 @@ indSkew=2:2:nNode*2; % row index for skew
 % for first row
 x(:,1)=x0(1:2*nNode); % system state
 y(:,1)=x(:,1)+measNoisev(:,1); % system output
-x(:,1)=x0;
-y(:,1)=x0;
+
+% x(:,1)=x0; % ToDo
+% y(:,1)=x0; % ToDo
 
 % initial errors for interation from k=2  
 yk=y(:,1);
 Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
-% yerr=[]; % clear yerr in case yerr has defined in previous simulation
-yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1));%误差向量（输出-输出均值）胡equ29  ??
+yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1)); % 误差向量（输出-输出均值）胡 equ29  ?? ToDo
    
 %% Simulaiton Configuration 2d: Revise the node's role and topology
 % update the nNode and nEdge, as they may be changed due to spannning tree
@@ -222,16 +221,11 @@ hfigsim=figure('Name','Simulation Animation');
     % ax = axes; ax.ColorOrder = cm;
 
 
-A1=kron(eye(nNode),A);%克罗内克积
-% D=[alpha(i,j) 0;0 beta(i,j)];
-BK=B*K;  % variable D for the feedback gain matrix K in Hu2019
-BK1=kron(L,BK);
-
-% D=[alpha(i,j) 0 0 0;0 beta(i,j) 0 0;0 0 alpha(i,j) 0;0 0 0 beta(i,j)];
-%    Q=[theta1(k) 0;0 theta2(k)];R=[theta3(k) theta3(k);theta3(k) theta4(k)];
-    
+A1=kron(eye(nNode),A); % Kronecker product(克罗内克积)
+BK=B*K;
+BK1=kron(L,BK);    
 B1=kron(eye(nNode),B*K);
-L1=kron(L,eye(2));
+L1=kron(L,eye(2)); % B1*L1 is the same as BK1
 
 if chkEigAc(A,B,K,L)==false
     % the close form of the NCS has unstable eigenvalue
@@ -248,20 +242,12 @@ fprintf("    simulaiton is in process");
 
 for k = 2:szsim
 
-%   % x-based simulation, State and output updates, Hu2019, eq.26, 27
+    % state and output updates, see eq.26, 27 in Hu2019
     U=L1*y(:,k-1); % get the output differece with neighbours
-    % U=L1*zeros(2*nNode,1); % free running clock, no regulation
     x(:,k)=A1*x(:,k-1)-B1*U+procNoisew(:,k-1); % state updates
     y(:,k)=x(:,k)+measNoisev(:,k); % output updates
 
-%     % y-base sys, noise-free      
-%     y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1);%w输出Y值 胡 eq 28
-%     xx1(:,k)=y1(:,k);%状态X值
-    
-    % collect the synchronization error for results analysis
-    % Selet which reuslts to be used: 2 for x-based simulaiton, 1 for
-    % y-based
-
+    % collect the synchronisation error for result analysis
     yk=y(:,k);
     Ybar(:,k)=[mean(yk(indTheta)');mean(yk(indSkew)')];
     Ystd(:,k)=[std(yk(indTheta)');std(yk(indSkew)')];
