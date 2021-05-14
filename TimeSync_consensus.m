@@ -110,11 +110,11 @@ fprintf("    Observation (offset) noise std = %d\r", sqrt(sigma3sqr));
 % DXW: gamma的测量噪声来自于theta的测量噪声，不应该是独立的 ????
 %
 % for循环实现噪声向量随节点个数自动生成
-procNoisew=[];
-measNoisev=[];
+procNoise=[];
+measNoise=[];
 for k=1:nNode
-procNoisew((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr)*randn(1,szsim)];
-measNoisev((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
+procNoise((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr)*randn(1,szsim)];
+measNoise((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
 end
 
 %% Simulaiton Configuration 2b: Controller Design  
@@ -152,7 +152,7 @@ indSkew=2:2:nNode*2; % row index for skew
 
 % for first row
 x(:,1)=x0(1:2*nNode); % system state
-y(:,1)=x(:,1)+measNoisev(:,1); % system output
+y(:,1)=x(:,1)+measNoise(:,1); % system output
 yy(:,1)=x(:,1); % for performance evaluation
 
 % x(:,1)=x0; % ToDo
@@ -192,13 +192,13 @@ while true
     fprintf(" ... ... Done. Node %d now is drifting, but non-servo clock\n",nID);
 
     % Check to set the nID node as reference clock?
-    refClk=input(sprintf('Set node %d as a reference clock (theta=0, gamma=0, procNoisew=0) (Y) or just non-servo clock (N)? ',...
+    refClk=input(sprintf('Set node %d as a reference clock (theta=0, gamma=0, procNoise=0) (Y) or just non-servo clock (N)? ',...
             nID),'s');
     if refClk=='y' || refClk=='Y'
         x0((nID-1)*2+1:(nID-1)*2+2)=0; % initial offset and gamme to zero
         xx2(:,1)=x0;
         y2(:,1)=x0;
-        procNoisew([(nID-1)*2+1:(nID-1)*2+2],:)=0; % clear process noises w
+        procNoise([(nID-1)*2+1:(nID-1)*2+2],:)=0; % clear process noises w
         listRefClk=[listRefClk,nID];
             fprintf(" ... ... Done. Set node %d to reference clock.\n", nID);
     end
@@ -239,8 +239,8 @@ for k = 2:szsim
 
     % state and output updates, see eq.26, 27 in Hu2019
     U=L1*y(:,k-1); % get the output differece with neighbours
-    x(:,k)=A1*x(:,k-1)-B1*U+procNoisew(:,k-1); % state updates
-    y(:,k)=x(:,k)+measNoisev(:,k); % output updates
+    x(:,k)=A1*x(:,k-1)-B1*U+procNoise(:,k-1); % state updates
+    y(:,k)=x(:,k)+measNoise(:,k); % output updates
 
     % collect the synchronisation error for result analysis
     yy=x;
@@ -249,7 +249,6 @@ for k = 2:szsim
     Ystd(:,k)=[std(yk(indTheta)');std(yk(indSkew)')];
     yerr(:,k)=yy(:,k);
    
-
    % for animaltion during simulation
     if (k<10) || (k<100 && (mod(k,10)==0)) ||(k>100 && mod(k,50)==0)
            figure(hfigsim);
