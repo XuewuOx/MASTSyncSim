@@ -136,31 +136,25 @@ stdOffset=sqrt((2*a)^2/12); % std. dev. for uniform dist. sqrt((max-min)^2/12)
 iniSkew=b0+b*2*(rand(1,nNode)-0.5); 
 stdSkew=sqrt((2*b)^2/12); % std. dev. for uniform dist.
 x0=10^(-6)*reshape([iniOffset;iniSkew],[],1); % reshape matrix to have specified 
-                                              % number (i.e. 1) of columns
+                                              % number (i.e. 1) of columns,
+                                              % the unit is "us"
 fprintf("initial system state x[0]:\r");
 fprintf("    clock offset %d +/- %d us, & std=%d us \r", a0, a, stdOffset);
 fprintf("    clock skew %d +/- %d ppm, & std=%d ppm \r", b0, b, stdSkew);
 
 % internal variables for clock state, output and sync errors
-% %noKalman
 y=zeros(2*nNode,szsim); % output, a matrix for outputs at all sz simulation steps
-xx=zeros(2*nNode,szsim); % state, a matrix for states at all sz simulation steps
+x=zeros(2*nNode,szsim); % state, a matrix for states at all sz simulation steps
 
 yerr=zeros(2*nNode,szsim); % output errors
 
- indTheta=1:2:nNode*2-1;  % row indices for theta
- indSkew=2:2:nNode*2; % row indices for skew
+indTheta=1:2:nNode*2-1;  % row index for theta
+indSkew=2:2:nNode*2; % row index for skew
 
-% for root clock (node 1) failure
-% disp("node 1 failure. Disconnected from network and ignore node 1 in statistis Ybar and std, etc");
-% indTheta=3:2:nNode*2-1;  % row indices for theta
-% indSkew=4:2:nNode*2; % row indices for skew
-
-
-% xx(:,1)=x0_noisefree(1:2*nNode);
-xx(:,1)=x0(1:2*nNode);
-y(:,1)=xx(:,1)+measNoisev(:,1);
-xx(:,1)=x0;
+% for first row
+x(:,1)=x0(1:2*nNode); % system state
+y(:,1)=x(:,1)+measNoisev(:,1); % system output
+x(:,1)=x0;
 y(:,1)=x0;
 
 % initial errors for interation from k=2  
@@ -257,8 +251,8 @@ for k = 2:szsim
 %   % x-based simulation, State and output updates, Hu2019, eq.26, 27
     U=L1*y(:,k-1); % get the output differece with neighbours
     % U=L1*zeros(2*nNode,1); % free running clock, no regulation
-    xx(:,k)=A1*xx(:,k-1)-B1*U+procNoisew(:,k-1); % state updates
-    y(:,k)=xx(:,k)+measNoisev(:,k); % output updates
+    x(:,k)=A1*x(:,k-1)-B1*U+procNoisew(:,k-1); % state updates
+    y(:,k)=x(:,k)+measNoisev(:,k); % output updates
 
 %     % y-base sys, noise-free      
 %     y1(:,k)=A1*y1(:,k-1)-BK1*y1(:,k-1);%w输出Y值 胡 eq 28
@@ -280,9 +274,9 @@ for k = 2:szsim
            fprintf(".");
 
            % fprintf('k=%d\n',k);
-        subplot(2,2,1);   drawTrajectory(xx(indTheta,1:k))
+        subplot(2,2,1);   drawTrajectory(x(indTheta,1:k))
         hold on;  plot(1:k,Ybar(1,1:k), '-k', 'MarkerSize', 5, 'LineWidth', 2);
-        subplot(2,2,2);   drawTrajectory(xx(indSkew,1:k))
+        subplot(2,2,2);   drawTrajectory(x(indSkew,1:k))
         hold on;  plot(1:k,Ybar(2,1:k), '-sk', 'MarkerSize', 5,'LineWidth', 2);
         subplot(2,2,3);
         hold on; cla; plot(1:k,yerr(indTheta,1:k), '-o');
@@ -371,7 +365,7 @@ fprintf("   maximum std in t=[300,800]: [offset=%d skew=%d]\n",max(Ystd(1,[300:s
 fprintf("   average std in t=[300,800]: [offset=%d, skew=%d]\n", mean(Ystd(1,[300:szsim])), mean(Ystd(2,[300:szsim])));
 
 
-xvar=var(xx(:,[300:szsim])');
+xvar=var(x(:,[300:szsim])');
 xthetavar=[1:nNode; xvar(1:2:2*nNode-1)];
 xskewvar=[1:nNode; xvar(2:2:2*nNode)];
 
@@ -389,14 +383,14 @@ hold on; cla; plot(1:k,yerr(indTheta,1:k), '-.');
         figure(3)
         subplot(2,2,1)
         for kk=1:2:2*nNode-1
-            plot([1:szsim],xx(kk,:));hold on
+            plot([1:szsim],x(kk,:));hold on
         end
       %    legend('节点1 offset状态值','节点2 offset状态值','节点3 offset状态值','节点4 offset状态值','节点5 offset状态值','节点6 offset状态值','节点7 offset状态值','节点8 offset状态值','节点9 offset状态值','节点10 offset状态值','节点11 offset状态值','节点12 offset状态值');
         xlabel('n');ylabel('状态值');
         
         subplot(2,2,2)
         for kk=2:2:2*nNode
-            plot([1:szsim],xx(kk,:));hold on
+            plot([1:szsim],x(kk,:));hold on
         end
        % legend('节点1 skew状态值','节点2 skew状态值','节点3 skew状态值','节点4 skew状态值','节点5 skew状态值','节点6 skew状态值','节点7 skew状态值','节点8 skew状态值','节点9 skew状态值','节点10 skew状态值','节点11 skew状态值','节点12 skew状态值');
         xlabel('n');ylabel('状态值');
@@ -417,9 +411,9 @@ hold on; cla; plot(1:k,yerr(indTheta,1:k), '-.');
       
       % 
         for kk=1:2*nNode
-            var_xx(kk)=var(xx(kk,:));
+            var_xx(kk)=var(x(kk,:));
         end
-      mean_xx=mean(xx,2);
+      mean_xx=mean(x,2);
       
 
         
