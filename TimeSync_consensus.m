@@ -63,60 +63,50 @@ figure('name',strnet); plot(netG); title(strnet);
 fprintf("Network created with : %d nodes.%d edges", nNode,nEdge);
 
 % disp(L);
-%% Simulaiton Configuration 2a: Clock and noises Q R
-T=1; % clock synchronization interval
-A=[1 T;0 1];
-B=[1 0;0 1];
-
-% (1) genertion of process and measurement noises
-% According to the 3Sigma rule of Gaussian distribution
-%  99.73% of the noise will be in the range of [mu-3*sigma, mu+3*sigma]
-% This suggests nearly all values are taken to lie within 
-% three standard deviations of the mean, and thus it is 
-% empirically useful to treat 99.7% probability
-%  as near certainty.
+%% Simulaiton Configuration 2a: Clock and Packet-exchange Delay Noises (Q)
+% According to the 3Sigma rule of Gaussian distribution 99.73% of the noise 
+% will be in the range of [mu-3*sigma, mu+3*sigma] This suggests nearly all 
+% values are taken to lie within three standard deviations of the mean, and 
+% thus it is empirically useful to treat 99.7% probability as near certainty.
 % Therefore, the noise range is -/+ 3*sigma
-sigma1sqr=10^-12;%有噪声 variance of offset noise 
-sigma2sqr=10^-12;  % variance of skew noise
-sigma3sqr=10^-12; % variance of offset's measurement noise, 
-               % this is equal to the noise caused by the delay jitters
-% TODO 噪声的方差 sigma^2 可根据WSN硬件平台实测数据进行调整
-%  根据Zong的实测数据， CPU处理延时的均值是311us,
-%                       CPU处理延时的抖动(standard deviation)是4us
-%  CPU处理延时相当于在执行器上的扰动，理论上需要根据控制器增益K，
-%  通过K^-1 换算为 系统输出的测量值扰动  
-%  这里，暂且将CPU处理延迟的抖动作为测量噪声， 因此 sigma3=4us
- sigma3sqr=(4*10^(-6))^2;  % 1.6*10^-11
-               
-% sigma=sigma3sqr*[1 1;1 2];
-mu=[0 0];
-R=[sigma1sqr 0;0 sigma2sqr];%过程噪声协方差矩阵
-% Q1=[Q zeros(2,2);zeros(2,2) Q];
-Q=[sigma3sqr sigma3sqr;sigma3sqr 2*sigma3sqr];%测量噪声协方差矩阵
-%  R1=[R zeros(2,2);zeros(2,2) R]
-fprintf("Noise levels:\r");
-fprintf("    Phase (offset) noise std = %d\r", sqrt(sigma1sqr));
-fprintf("    Freq (skew) noise std = %d\r", sqrt(sigma2sqr));
-fprintf("    Observation (offset) noise std = %d\r", sqrt(sigma3sqr));
-
-% Q=eye(2)
-
-% for k-th node, the noises is a 4-by-sz matrix stated in  
-% odd row of procNoise are (1) process noses of theta  (1-by-sz) 过程噪声中thet的随机值
-% even row of procNoise are (2) process noise of gamma (1-by-sz)  过程噪声中gamma的随机值
-% odd row of measNoise are  (3) measurement noise of theta (1-by-sz) 测量噪声中theta 的随机值(生成多维正态数据）
-% odd row of measNoise are (4) measurement noise of gamma (1-by-sz)
-% 测量噪声中gamma的随机值(生成多维正态数据）
-% DXW: gamma的测量噪声来自于theta的测量噪声，不应该是独立的 ????
 %
-% for循环实现噪声向量随节点个数自动生成
+% A rule of thumb, according to which, in certain problems in probability 
+% theory and mathematical statistics, an event is considered to be 
+% practically impossible if it lies in the region of values of the normal 
+% distribution of a random variable at a distance from its mathematical 
+% expectation of more than three times the standard deviation.
+% 
+% In the mathematical version, 3 signms rule can be expressed as the
+% following: 
+% If abs(obs-mean(obs))>3*sd(obs) ===> you've got something unusual.
+%
+
+sigma1sqr=10^-12; % variance of offset noise, from Clock A of Giorgi2011
+sigma2sqr=10^-16; % variance of skew noise, from Clock A of Giorgi2011
+sigma3sqr=(4*10^(-6))^2; % variance of measurement noise, from Zong2019c
+
+mu=[0 0];
+R=[sigma1sqr 0;0 sigma2sqr]; % covariance of process noise (NO USE)
+Q=[sigma3sqr sigma3sqr;sigma3sqr 2*sigma3sqr]; % covariance of measurement noise
+
+fprintf("noise levels:\r");
+fprintf("    offset process noise std = %d\r", sqrt(sigma1sqr));
+fprintf("    skew process noise std = %d\r", sqrt(sigma2sqr));
+fprintf("    offset measurement noise std = %d\r", sqrt(sigma3sqr));
+
+% for the k-th node, the noises is a 2-by-sz matrix stated in  
+% odd row of procNoise are (1) process noses of theta  (1-by-sz) 
+% even row of procNoise are (2) process noise of gamma (1-by-sz)
+% odd row of measNoise are (1) measurement noise of theta (1-by-sz)
+% odd row of measNoise are (2) measurement noise of gamma (1-by-sz)
+
 procNoise=[];
 measNoise=[];
-for k=1:nNode
-procNoise((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr)*randn(1,szsim)];
-measNoise((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
-end
 
+for k=1:nNode
+    procNoise((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr)*randn(1,szsim)];
+    measNoise((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
+end
 %% Simulaiton Configuration 2b: Controller Design  
 % static control gain is obtained by using the LMI technique
 K=[-0.0021 0.0000; 
@@ -141,6 +131,10 @@ x0=10^(-6)*reshape([theta0;gamma0],[],1); % reshape matrix to have specified
 fprintf("initial system state x[0]:\r");
 fprintf("    clock offset %d +/- %d us, & std=%d us \r", a0, a, stdOffset);
 fprintf("    clock skew %d +/- %d ppm, & std=%d ppm \r", b0, b, stdSkew);
+
+T=1; % clock synchronization interval
+A=[1 T;0 1];
+B=[1 0;0 1];
 
 % internal variables for clock state, output and sync errors
 x=zeros(2*nNode,szsim); % state, a matrix for states at all sz simulation steps
