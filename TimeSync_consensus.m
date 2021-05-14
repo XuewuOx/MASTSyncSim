@@ -153,14 +153,15 @@ indSkew=2:2:nNode*2; % row index for skew
 % for first row
 x(:,1)=x0(1:2*nNode); % system state
 y(:,1)=x(:,1)+measNoisev(:,1); % system output
+yy(:,1)=x(:,1); % for performance evaluation
 
 % x(:,1)=x0; % ToDo
 % y(:,1)=x0; % ToDo
 
 % initial errors for interation from k=2  
-yk=y(:,1);
+yk=yy(:,1);
 Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
-yerr(:,1)=yk-kron(ones(nNode,1),Ybar(:,1)); % 误差向量（输出-输出均值）胡 equ29  ?? ToDo
+yerr(:,1)=yy; % synchronisation error (actually is the clock offset)
    
 %% Simulaiton Configuration 2d: Revise the node's role and topology
 % update the nNode and nEdge, as they may be changed due to spannning tree
@@ -216,10 +217,7 @@ hfigsim=figure('Name','Simulation Animation');
     subplot(2,2,1);    title('offset \theta of all nodes & avg');
     subplot(2,2,2);    title('skew \gamma of all nodes & avg');
     subplot(2,2,3);    title('errors of \theta wrt.the average');
-    % ax = axes; ax.ColorOrder = cm;
     subplot(2,2,4);    title('errors of \gamma wrt.the average');
-    % ax = axes; ax.ColorOrder = cm;
-
 
 A1=kron(eye(nNode),A); % Kronecker product(克罗内克积)
 BK=B*K;
@@ -237,9 +235,6 @@ strK=num2str(K);
 fprintf("     K=[%s ;\n        %s]\n", strK(1,:), strK(2,:));
 fprintf("    simulaiton is in process");
 
-% Please note, B1*L1 shoulde be the same as BK1
-% sz=500;
-
 for k = 2:szsim
 
     % state and output updates, see eq.26, 27 in Hu2019
@@ -248,10 +243,11 @@ for k = 2:szsim
     y(:,k)=x(:,k)+measNoisev(:,k); % output updates
 
     % collect the synchronisation error for result analysis
+    yy=x;
     yk=y(:,k);
     Ybar(:,k)=[mean(yk(indTheta)');mean(yk(indSkew)')];
     Ystd(:,k)=[std(yk(indTheta)');std(yk(indSkew)')];
-    yerr(:,k)=yk-kron(ones(nNode,1),Ybar(:,k));%误差向量（输出-输出均值）胡equ29  ??
+    yerr(:,k)=yy(:,k);
    
 
    % for animaltion during simulation
