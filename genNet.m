@@ -1,12 +1,16 @@
 function [netG netTree]= genNet(nNode,nEdge,isCmdPromtEnabled)
-% genNet 
-% to generate a random network 
+% genNet is to generate a random network 
 % Input arguments: nNode   expected number of nodes, default 5 nodes
 %                  nEdge   expected number of edges, default 15 edges
 %                  isCmdPromtEnabled   1 allow user select the suitable network
 %                  graph
 % Output arguments: netG   the graph object of the network generated
-            
+% 
+%% 
+% Description: according to the value of nargin (which returns number of 
+%              function input arguments), determining 'user select the 
+%              suitable network', or using the default configurations
+
 % if command prompt is enabled 
  if nargin==3 % the number of function input arguments is three
      cmdp= isCmdPromtEnabled==1;
@@ -22,7 +26,11 @@ function [netG netTree]= genNet(nNode,nEdge,isCmdPromtEnabled)
  elseif nargin==0 % by default, 5 nodes and 8 edges
      nNode=5; nEdge=8;
  end
- 
+%% 
+% using randi to generate a nEdge-by-2 matrxi; using the differences between 
+% columns to determine are there any self-loops; and using the differences 
+% between rows, in order to determine are there any self-loops duplicated edges
+
 fh=figure('Name', 'Network Graph');
 while true  % for user decide if a graph is suitable 
     for i=50:-1:1   % search for a connected graph
@@ -92,10 +100,15 @@ while true  % for user decide if a graph is suitable
                                % double check duplicated edges
             warning("the created graph has multiple duplicated edges between any two nodes. Please check your network graph generation codes");
         end
-        L=laplacian(netG);
         
+        %% 
+        % according the eigenvalue of a graph's laplacian matrix, to determine
+        % are all nodes in a graph connected
+        % 
         % ToDo: what is the difference between enginvalues and laplacian in
         % a graph
+        
+        L=laplacian(netG);        
         
         % checking if is L is connected
         lambda = eig(L); % Get eigenvalues of laplacian
@@ -109,7 +122,7 @@ while true  % for user decide if a graph is suitable
             break;
         end
     end % end of for loop, search connected graph
-
+%% generating an undirected graph (could be minimum spanning tree, could be graph)
     figure(fh); hold off;
     hfig=plot(netG);title(sprintf("network of %d nodes, %d edges",nNode, nEdge));
     
