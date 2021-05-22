@@ -125,10 +125,13 @@ x(:,1)=x0(1:2*nNode); % system state
 y(:,1)=x(:,1)+measNoise(:,1); % system output
 yy(:,1)=x(:,1); % for performance evaluation
 
+% setting node 1 as a reference node
 x0(1:2)=0; % initial offset and gamme to zero (first column, first two rows)
 x(:,1)=x0; % first column of x is assigned as first row of x0
-y(:,1)=x0; % first column of y is assigned as first row of x0
+y([1:2],:)=0; % first two rows of y is assigned as 0 (clear first two rows) 
+yy(:,1)=x0; % first column of yy is assigned as first row of x0
 procNoise([1:2],:)=0; % clear process noises (clear first two rows)
+measNoise([1:2],:)=0; % clear process noises (clear first two rows)
 
 % initial errors for interation from k=2  
 yk=yy(:,1);
