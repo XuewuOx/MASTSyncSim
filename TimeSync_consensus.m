@@ -35,8 +35,8 @@ plot(netG,'Layout','force','LineWidth',2);
 title("a directed  graph ");
 
 set(gcf,'color','w');
-
-print -depsc fig6.eps;
+set(gcf,'renderer','Painters');
+print -depsc -tiff -r600 -painters fig6.eps;
 saveas(gcf,'fig6.tif');
 
 disp(NetTree);
