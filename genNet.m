@@ -85,14 +85,17 @@ while true  % for user decide if a graph is suitable
         
         fprintf("No self-loops, neither duplicated edges\n");
         s = st(:,1); t = st(:,2);
-        netG=graph(s,t); % constructing a graph with edges specified by the 
-                         % node pairs (s, t). 
+        netG=graph(s,t); % constructing an undirected graph with edges 
+                         % specified by the node pairs (s, t). 
                          
         if ismultigraph(netG)  % determining whether a graph has multiple edges. 
                                % double check duplicated edges
             warning("the created graph has multiple duplicated edges between any two nodes. Please check your network graph generation codes");
         end
         L=laplacian(netG);
+        
+        % ToDo: what is the difference between enginvalues and laplacian in
+        % a graph
         
         % checking if is L is connected
         lambda = eig(L); % Get eigenvalues of laplacian
@@ -110,7 +113,7 @@ while true  % for user decide if a graph is suitable
     figure(fh); hold off;
     hfig=plot(netG);title(sprintf("network of %d nodes, %d edges",nNode, nEdge));
     
-    [netTree,pred] = minspantree(netG);
+    [netTree,pred] = minspantree(netG); % minimum spanning tree of undirected graph
     highlight(hfig,netTree)
 
     fprintf("the Laplacian Matrix of the generated network is \n")
@@ -136,7 +139,7 @@ while true  % for user decide if a graph is suitable
     disp('    qQ  ---   quit without network graph. return with []');
     x = input( 'Type your choice:', 's');
     if x == 'y' || x=='Y'
-        fprintf("Both graph (%d nodes, %d edges) and its minimal spanning tree (%d edges) are created\n", ...
+        fprintf("Both undirected graph (%d nodes, %d edges) and its minimal spanning tree (%d edges) are created\n", ...
             nNode,nEdge,nEdge);
         break;
     elseif x=='r' || x=='R'
