@@ -80,13 +80,17 @@ for k=1:nNode
 end
 %% Simulaiton Configuration 2b: Controller Design  
 % static control gain is obtained by using the LMI technique
-% the control gain from LMI of Chang2014
+% the control gain from LMI of Chang2020
 K=[-0.0021 0; 
     0.0001 -0.0026];
 
-% the control gain from IEEE Trans. Cybern.
-K=[0.5 0;
-    0 0.025];
+% the control gain from GlobeCom2018
+K=[0.6 0;
+    0 0.08];
+
+% the control gain from the xx protocol
+% K=[1 0;
+%     0 1];
 
 format long   
 fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
