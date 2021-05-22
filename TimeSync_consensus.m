@@ -18,56 +18,22 @@ clc;
 disp("Clock Synchronization Simulation");
 
 szsim=800; % simulation time
-arbitraryNetwork=true;
-% ToDo
-if arbitraryNetwork 
-    % Random network generation
-    nNode=50; nEdge=60;  
 
-    [G0 Tree0]=genNet(nNode,nEdge,1);
-    if isempty(G0)
-       disp('Network generation and simlation cancelled');
-       return;
-    end
-    disp('Do you want to use the graph or spanning tree for TimeSync?');
-    disp('     g/G -- use graph;   t/T --- use the minimum spannning tree');
-    usrinput = input( 'Type your choice: ', 's');
-    if usrinput == 't' || usrinput=='T' || usrinput=='n' || usrinput=='N'
-        fprintf("the TREE is used for time sync. %d nodes, %d edges\n", ...
-            nNode,numedges(Tree0));
-        netG=Tree0;
-    else
-        fprintf("the GRAPH is used for time sync. %d nodes, %d edges\n", ...
-            nNode,numedges(G0));
-        netG=G0;
-    end
-    L=full(laplacian(netG));
-    nEdge=numedges(netG); nNode=numnodes(netG);
-else
-    % Network topology specified by the Laplacian matrix L
-    L=[1 -1  0  0  0  0  0  0  0;
-      -1  1  0  0  0  0  0  0  0;
-       0 -1  1  0  0  0  0  0  0;
-       0  0 -1  1  0  0  0  0  0;
-       0  0  0 -1  1  0  0  0  0;
-       0  0  0  0 -1  1  0  0  0;
-       0  0  0  0  0 -1  1  0  0;
-       0  0  0  0  0  0 -1  1  0;
-       0  0  0  0  0  0  0 -1  1;]; % directed 8-hop linear network
+load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
+load('OriginalDirectedGraphwith50Nodes&60Edges.mat','nNode');
 
-    Lms=tril(L,-1)+eye(length(L)); 
-    [netG,L]=genNetbyL(Lms);
-    [netG,L]=genNetbyL(L);
-    nNode=length(L);% number of nodes
-    nEdge=trace(L)/2; % number of edges
-end
+fprintf("The number of tree spinning network is %d \r", nNode);
 
-% show the network topology
-strnet=['Network Toplogy (', num2str(nNode), ' nodes,' num2str(nEdge), ' edges)'];
-figure('name',strnet); plot(netG); title(strnet);
-fprintf("Network created with : %d nodes.%d edges", nNode,nEdge);
+[NetTree]=genTreeNet(L);
 
-% disp(L);
+% directed graph
+d=diag(NetTree);  % d is the dialog vector of matrix L 
+A=diag(d)-NetTree;
+netG=digraph(A,'omitselfloops');
+figure('name', 'Network Topology'); plot(netG,'LineWidth',2);
+title("a directed  graph ");
+
+% disp(NetTree);
 %% Simulaiton Configuration 2a: Clock and Packet-exchange Delay Noises (Q)
 % According to the 3Sigma rule of Gaussian distribution 99.73% of the noise 
 % will be in the range of [mu-3*sigma, mu+3*sigma] This suggests nearly all 

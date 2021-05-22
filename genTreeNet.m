@@ -1,7 +1,9 @@
-clear all;
-close all;
-clc;
-load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
+function [NetTree]= genNet(L)
+
+%     clear all;
+%     close all;
+%     clc;
+%     load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
 
 %%
 % node 23 -> node 1 
@@ -174,9 +176,13 @@ L(40,40) = 1;
 L(40,39) = 0;
 sum(L(40,:));
 
-% directed graph
-d=diag(L);  % d is the dialog vector of matrix L 
-A=diag(d)-L;
-netG=digraph(A,'omitselfloops');
-figure('name', 'Network Topology'); plot(netG,'LineWidth',2);
-title("a directed  graph ");
+NetTree = L;
+
+%     % directed graph
+%     d=diag(NetTree);  % d is the dialog vector of matrix L 
+%     A=diag(d)-L;
+%     netG=digraph(A,'omitselfloops');
+%     figure('name', 'Network Topology'); plot(netG,'LineWidth',2);
+%     title("a directed  graph ");
+
+end
