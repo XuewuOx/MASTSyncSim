@@ -125,58 +125,15 @@ x(:,1)=x0(1:2*nNode); % system state
 y(:,1)=x(:,1)+measNoise(:,1); % system output
 yy(:,1)=x(:,1); % for performance evaluation
 
+x0(1:2)=0; % initial offset and gamme to zero (first column, first two rows)
+x(:,1)=x0; % first column of x is assigned as first row of x0
+y(:,1)=x0; % first column of y is assigned as first row of x0
+procNoise([1:2],:)=0; % clear process noises (clear first two rows)
+
 % initial errors for interation from k=2  
 yk=yy(:,1);
 Ybar(:,1)=[mean(yk(indTheta)');mean(yk(indSkew)')];
 yerr(:,1)=yy; % synchronisation error (actually is the clock offset)
-   
-%% Simulaiton Configuration 2d: Revise the node's role and topology
-% update the nNode and nEdge, as they may be changed due to spannning tree
-% nNode=numnodes(netG);% number of nodes
-% nEdge=numedges(netG); % number of edges
-
-% Revise the network to fit the topology needs
-% Set the non-servo clock, reference clock and initial states
-fprintf("Network size: %d nodes. Topology: L=", nNode);
-% disp(L);
-listnonServoClk=[];
-listRefClk=[];
-while true
-    nID=input('Any clock node you want to change to non-sevo clock? \n     Type the node ID (0 for nothing to change): ');
-    if nID==0
-        break;
-    end
-    if (nID<0 || nID >nNode)
-        disp("Invalid node ID. Please type again");
-    end
-    % change the nID node to non-servo clock
-    %  set the nID row and col to zero vector (non-servo clock)
-    %  DXW debug: should onle reset nID row to zero, nID col should be
-    %  unchanged
-    L(nID,:)=zeros(1,nNode); % ??? 
-    % L(:,nID)=zeros(1,nNode)';
-    listnonServoClk=[listnonServoClk,nID]; % add nID to the list
-    fprintf(" ... ... Done. Node %d now is drifting, but non-servo clock\n",nID);
-
-    % Check to set the nID node as reference clock?
-    refClk=input(sprintf('Set node %d as a reference clock (theta=0, gamma=0, procNoise=0) (Y) or just non-servo clock (N)? ',...
-            nID),'s');
-    if refClk=='y' || refClk=='Y'
-        x0((nID-1)*2+1:(nID-1)*2+2)=0; % initial offset and gamme to zero
-        xx2(:,1)=x0;
-        y2(:,1)=x0;
-        procNoise([(nID-1)*2+1:(nID-1)*2+2],:)=0; % clear process noises w
-        listRefClk=[listRefClk,nID];
-            fprintf(" ... ... Done. Set node %d to reference clock.\n", nID);
-    end
-    fprintf("Revised Network and Clock: %d nodes.%d edges,\n", nNode,nEdge);
-   disp("     " + num2str(length(listnonServoClk))+ " non-servo clock = [" + num2str(listnonServoClk)+"]");
-   disp("     " + num2str(length(listRefClk))+ " Refence clock = [" + num2str(listRefClk)+"]");
-   [netG L]=genNetbyL(L);
-end
-
-% any changes to the network and clock configuraiton 
-fprintf("Network created with : %d nodes.%d edges\n", nNode,nEdge);
 %%  Simulating the Networked Synchronization controller 
 disp('Now start simulation ');
 hfigsim=figure('Name','Simulation Animation'); 
@@ -188,11 +145,11 @@ hfigsim=figure('Name','Simulation Animation');
 
 A1=kron(eye(nNode),A); % Kronecker product(克罗内克积)
 BK=B*K;
-BK1=kron(L,BK);    
+BK1=kron(NetTree,BK);    
 B1=kron(eye(nNode),B*K);
-L1=kron(L,eye(2)); % B1*L1 is the same as BK1
+NetTreeTemp=kron(NetTree,eye(2)); % B1*L1 is the same as BK1
 
-if chkEigAc(A,B,K,L)==false
+if chkEigAc(A,B,K,NetTree)==false
     % the close form of the NCS has unstable eigenvalue
     warning("     Unstable eigenvalue of the networked closed loop system \n");
 else
@@ -205,7 +162,7 @@ fprintf("    simulaiton is in process");
 for k = 2:szsim
 
     % state and output updates, see eq.26, 27 in Hu2019
-    U=L1*y(:,k-1); % get the output differece with neighbours
+    U=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
     x(:,k)=A1*x(:,k-1)-B1*U+procNoise(:,k-1); % state updates
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
 
