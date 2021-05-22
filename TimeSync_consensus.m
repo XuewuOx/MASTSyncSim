@@ -18,11 +18,11 @@ clc;
 disp("Clock Synchronization Simulation");
 
 szsim=800; % simulation time
-arbitraryNetwork=false;
+arbitraryNetwork=true;
 % ToDo
 if arbitraryNetwork 
     % Random network generation
-    nNode=20; nEdge=20;  
+    nNode=50; nEdge=60;  
 
     [G0 Tree0]=genNet(nNode,nEdge,1);
     if isempty(G0)

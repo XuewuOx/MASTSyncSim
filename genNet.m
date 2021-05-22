@@ -33,7 +33,7 @@ function [netG netTree]= genNet(nNode,nEdge,isCmdPromtEnabled)
 
 fh=figure('Name', 'Network Graph');
 while true  % for user decide if a graph is suitable 
-    for i=50:-1:1   % search for a connected graph
+    for i=200:-1:1   % search for a connected graph
         % generate nEdge connections randommanly
         st = randi(nNode, nEdge, 2); % returns an nEdge-by-2 matrix of 
                                      % pseudorandom integers drawn from the 
