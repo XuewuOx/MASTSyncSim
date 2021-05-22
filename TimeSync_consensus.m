@@ -30,10 +30,16 @@ fprintf("The number of tree spinning network is %d \r", nNode);
 d=diag(NetTree);  % d is the dialog vector of matrix L 
 A=diag(d)-NetTree;
 netG=digraph(A,'omitselfloops');
-figure('name', 'Network Topology'); plot(netG,'LineWidth',2);
+figure('name', 'Network Topology'); 
+plot(netG,'Layout','force','LineWidth',2);
 title("a directed  graph ");
 
-% disp(NetTree);
+set(gcf,'color','w');
+
+print -depsc fig6.eps;
+saveas(gcf,'fig6.tif');
+
+disp(NetTree);
 %% Simulaiton Configuration 2a: Clock and Packet-exchange Delay Noises (Q)
 % According to the 3Sigma rule of Gaussian distribution 99.73% of the noise 
 % will be in the range of [mu-3*sigma, mu+3*sigma] This suggests nearly all 
