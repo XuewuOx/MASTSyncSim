@@ -28,8 +28,8 @@ fprintf("The number of tree spinning network is %d \r", nNode);
 
 % directed graph
 d=diag(NetTree);  % d is the dialog vector of matrix L 
-A=diag(d)-NetTree;
-netG=digraph(A,'omitselfloops');
+AA=diag(d)-NetTree;
+netG=digraph(AA,'omitselfloops');
 % figure('name', 'Network Topology'); 
 GG = plot(netG,'Layout','layered','Direction','up','LineStyle','--','NodeFontName','Times New Roman','NodeFontSize',9.5,'Interpreter','latex'); 
 % by default 'Linewidth' is 0.5, and 'MarkerSize' is 4 
