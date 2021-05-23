@@ -30,14 +30,25 @@ fprintf("The number of tree spinning network is %d \r", nNode);
 d=diag(NetTree);  % d is the dialog vector of matrix L 
 A=diag(d)-NetTree;
 netG=digraph(A,'omitselfloops');
-figure('name', 'Network Topology'); 
-plot(netG,'Layout','force','LineWidth',2);
-title("a directed  graph ");
+% figure('name', 'Network Topology'); 
+GG = plot(netG,'Layout','layered','Direction','up','LineStyle','--','NodeFontName','Times New Roman','NodeFontSize',9.5,'Interpreter','latex'); 
+% by default 'Linewidth' is 0.5, and 'MarkerSize' is 4 
+
+highlight(GG,[1],'NodeColor',[0.6350 0.0780 0.1840], 'MarkerSize', 5.5) 
+
+set(gca, 'FontSize', 11, 'FontName', 'Times New Roman')  % axis configuration
+
+% set(gca, 'xlim',[0 0.7], 'XTick',0:0.1:0.7, 'LineWidth', 1.5); % axis configuration
+% set(gca,'ylim',[-40 80], 'YTick',-40:20:80); % axis configuration
+
+% xlabel('Xx', 'Interpreter','latex', 'FontSize', 11, 'FontName', 'Times New Roman');
+% ylabel('Yy', 'Interpreter','latex', 'FontSize', 11, 'FontName', 'Times New Roman');
+% title("Network Topology");
 
 set(gcf,'color','w');
 set(gcf,'renderer','Painters');
-print -depsc -tiff -r600 -painters fig6.eps;
-saveas(gcf,'fig6.tif');
+print -depsc -tiff -r600 -painters fig2.eps;
+saveas(gcf,'fig2.tif');
 
 disp(NetTree);
 %% Simulaiton Configuration 2a: Clock and Packet-exchange Delay Noises (Q)
