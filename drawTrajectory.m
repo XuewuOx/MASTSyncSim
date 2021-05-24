@@ -13,7 +13,7 @@ function drawTrajectory(X,t)
         hold on;
         plot(t,X(i,:),  'Color', cm(i,:), ...
             'LineWidth', 2);
-        plot(t(end),X(i,end), '*k', 'MarkerSize', 10);
+      %  plot(t(end),X(i,end), '*k', 'MarkerSize', 10);
     end
     hold off;
 end
