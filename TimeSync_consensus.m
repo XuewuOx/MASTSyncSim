@@ -76,7 +76,7 @@ disp(NetTree);
 %
 
 sigma1sqr=10^-12; % variance of offset noise, from Clock A of Giorgi2011
-sigma2sqr=10^-16; % variance of skew noise, from Clock A of Giorgi2011
+sigma2sqr=10^-12; % variance of skew noise, from Clock A of Giorgi2011
 sigma3sqr=(4*10^(-6))^2; % variance of measurement noise, from Zong2019c
 
 mu=[0 0];
@@ -104,8 +104,8 @@ end
 %% Simulaiton Configuration 2b: Controller Design  
 % static control gain is obtained by using the LMI technique
 % the control gain from LMI of Chang2020
-K=[-0.0021 0; 
-    0.0001 -0.0026];
+% K=[-0.0021 0; 
+%     0.0001 -0.0026];
 
 % the control gain from GlobeCom2018
 K=[0.6 0;
@@ -225,6 +225,13 @@ for k = 2:szsim
 end
 
 fprintf('\n Simulation Ends\n');
+
+save('simulation_all_parameters_GlobeCom');
+save('ts_precision_GlobeCom','yerr');
+
+% save('simulation_all_parameters_TPSN');
+% save('ts_precision_TPSN','yerr');
+
 %% plot results
 % simNotes=sprintf('Clk %d, ideal ref clk',1); xpos=1;nlayer=5;
 % 
