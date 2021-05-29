@@ -104,12 +104,12 @@ end
 %% Simulaiton Configuration 2b: Controller Design  
 % static control gain is obtained by using the LMI technique
 % the control gain from LMI of Chang2020
-% K=[-0.0021 0; 
-%     0.0001 -0.0026];
+K=[0.83451 0;
+    0 0.87976]
 
 % the control gain from GlobeCom2018
-K=[0.6 0;
-    0 0.08];
+% K=[0.6 0;
+%     0 0.08];
 
 % the control gain from the TPSN protocol
 % K=[1 0;
@@ -226,8 +226,11 @@ end
 
 fprintf('\n Simulation Ends\n');
 
-save('simulation_all_parameters_GlobeCom');
-save('ts_precision_GlobeCom','yerr');
+save('simulation_all_parameters_LMI');
+save('ts_precision_LMI','yerr');
+
+% save('simulation_all_parameters_GlobeCom');
+% save('ts_precision_GlobeCom','yerr');
 
 % save('simulation_all_parameters_TPSN');
 % save('ts_precision_TPSN','yerr');
