@@ -104,24 +104,7 @@ end
 %% Simulaiton Configuration 2b: Controller Design  
 % static control gain is obtained by using the LMI technique
 % the control gain from LMI of Chang2020
-% K=[0.83451 0;
-%     0 0.87976]
-
-% K = [0.6025 0; 0 0.0869] % test 3
-K = [0.7615 0; 0 0.1253] % test 5 ----- THIS IS USED IN SIMULATION
-% K = [0.8075 0; 0 0.1573] % test 6
-
-% the control gain from GlobeCom2018
-% K=[0.6 0;
-%     0 0.08];
-
-% the control gain from the TPSN protocol
-% K=[1 0;
-%     0 1];
-
-% the control gain from Yildirim2018
-% K=[1 0;
-%     0 1/((32.768*10^6)*1)]; % see equ (9) of Yildirim2018
+K = [0.7615 0; 0 0.1253]
 
 format long   
 fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
@@ -233,27 +216,6 @@ for k = 2:szsim
 end
 
 fprintf('\n Simulation Ends\n');
-
-% save('simulation_all_parameters_LMI');
-% save('ts_precision_LMI','yerr');
-
-% save('simulation_all_parameters_LMI3');
-% save('ts_precision_LMI3','yerr');
-
-save('simulation_all_parameters_LMI5');
-save('ts_precision_LMI5','yerr');
-% 
-% save('simulation_all_parameters_LMI6');
-% save('ts_precision_LMI6','yerr');
-
-% save('simulation_all_parameters_GlobeCom');
-% save('ts_precision_GlobeCom','yerr');
-
-% save('simulation_all_parameters_TPSN');
-% save('ts_precision_TPSN','yerr');
-
-% save('simulation_all_parameters_Yildirim');
-% save('ts_precision_Yildirim','yerr');
 
 %% plot results
 % simNotes=sprintf('Clk %d, ideal ref clk',1); xpos=1;nlayer=5;
