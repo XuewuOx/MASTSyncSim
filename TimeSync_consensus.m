@@ -321,3 +321,4 @@ for i=1:1:nNode
 end
 xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
 ylabel('$\beta_i[k]$', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+title('Evolution of $\beta_i[k]$ in the simulations', 'Interpreter','latex');
