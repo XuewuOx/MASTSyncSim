@@ -18,8 +18,8 @@ clc;
 % 1 -- enable; 0 -- disable
 PISYNC = 0; 
 DYNCTRL = 0;
-MOVAVG = 0;
-TPSN = 1;
+MOVAVG = 1;
+TPSN = 0;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
@@ -136,10 +136,10 @@ if (DYNCTRL == 1 | MOVAVG == 1)
         run LMI.m
         K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
     elseif MOVAVG == 1
-        K=[1 0 0 0;
-           0 1 0 0;
-           1 0 1 0;
-           0 1 0 1]                
+        K=[0   0   0   0; % The configurarions of moving average is from Tian2021
+           0   0.5 0   0.5;
+           0   0   0.5   0;
+           0   0.5 0   0.5]                
     end
     
     A_K = K(1:2, 1:2);
