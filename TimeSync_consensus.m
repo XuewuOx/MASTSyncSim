@@ -202,7 +202,8 @@ for k = 2:szsim
     x(:,k)=A1*x(:,k-1)-B1*U+procNoise(:,k-1); % state updates
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
 
-    % update the controlling gain
+    % update the controlling gain by using the PISync protocol
+    % alpha is always equal to one in PISync
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
     if k>3
         y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - y(:,k-2));
@@ -231,6 +232,9 @@ for k = 2:szsim
         B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
     end           
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    
+    
     % collect the synchronisation error for result analysis
     yy=x;
     yk=y(:,k);
