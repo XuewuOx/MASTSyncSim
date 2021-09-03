@@ -101,10 +101,9 @@ for k=1:nNode
     measNoise((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
 end
 %% Simulaiton Configuration 2b: Controller Design  
-% static control gain is obtained by using the LMI technique
-% the control gain from LMI of Chang2020
-K = [0.7615 0; 0 0.1253]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 alpha = 1;
 beta = 0; % see equ (9) of Yildirim2018
 initial_beta = 1/32768;
@@ -114,6 +113,27 @@ K = [alpha 0; 0 beta];
 format long   
 fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
 format short
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% dynamic controller gain obtained by using the LMI technique
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% K = [A_K B_K; C_K D_K]
+run LMI.m
+K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
+A_K = K(1:2, 1:2);
+B_K = K(1:2, 3:4);
+C_K = K(3:4, 1:2);
+D_K = K(3:4, 3:4);
+
+format long   
+fprintf("Dynamic controller gain A_K, B_K, C_K, D_K are given by using LMI:\n"); 
+fprintf("A_K = \n"); disp(A_K);
+fprintf("B_K = \n"); disp(B_K);
+fprintf("C_K = \n"); disp(C_K);
+fprintf("D_K = \n"); disp(D_K);
+fprintf("The H_infty performance gamma = \n"); disp(Gamma);
+format short
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %% Simulaiton Configuration 2c: Clock & Networked State Initialisation
 % initialising the clock offset and skew (between 0 and 50ppm)
 a0=600000; % initial offset is 600ms 
@@ -175,6 +195,9 @@ BK=B*K;
 BK1=kron(NetTree,BK);    
 
 % B1=kron(eye(nNode),B*K); % all the initial control gains are same
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the control gain from Yildirim2018, PISync
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 alpha_list = alpha * ones([nNode, 1]);
 beta_list = beta * ones([nNode, 1]);
 B1 = zeros([2*nNode,2*nNode]);
@@ -182,6 +205,14 @@ for i=1:nNode
     B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
     B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% dynamic controller gain obtained by using the LMI technique
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+x_K=zeros(2*nNode,szsim);
+A_K1=kron(eye(nNode),A_K);
+B_K1=kron(eye(nNode),B_K);
+C_K1=kron(eye(nNode),B*C_K);
+D_K1=kron(eye(nNode),B*D_K);
 
 NetTreeTemp=kron(NetTree,eye(2)); % B1*L1 is the same as BK1
 
@@ -198,10 +229,24 @@ fprintf("    simulaiton is in process");
 for k = 2:szsim
 
     % state and output updates, see eq.26, 27 in Hu2019
-    U=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
-    x(:,k)=A1*x(:,k-1)-B1*U+procNoise(:,k-1); % state updates
+    
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
+    % dynamic controller gain obtained by using the LMI technique
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
+    UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
+    x_K(:,k)=A_K1*x_K(:,k-1)+B_K1*UTmp; % x_F[k+1] = A_F * x_F[k] + B_F * y[k]    
+    U = C_K1*x_K(:,k)+D_K1*UTmp; % u[k] = C_F * x_F[k] + D_F * y[k]
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+    % the control gain from Yildirim2018, PISync
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
+    UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
+    U = B1*UTmp;
+    
+    % state and output updates, see eq.26, 27 in Hu2019      
+    x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1); % state updates
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
-
+            
     % update the controlling gain by using the PISync protocol
     % alpha is always equal to one in PISync
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
@@ -232,9 +277,7 @@ for k = 2:szsim
         B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
     end           
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    
-    
+            
     % collect the synchronisation error for result analysis
     yy=x;
     yk=y(:,k);
