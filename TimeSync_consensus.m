@@ -413,6 +413,8 @@ if PISYNC == 1
     title('Evolution of $\beta_i[k]$ in the simulations', 'Interpreter','latex');
 end
 
+%%
+% saving the simulation results
 if PISYNC == 1
     save('simulation_all_parameters_pisync');
     save('ts_precision_pisync','yerr');     
