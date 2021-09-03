@@ -412,3 +412,17 @@ if PISYNC == 1
     ylabel('$\beta_i[k]$', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
     title('Evolution of $\beta_i[k]$ in the simulations', 'Interpreter','latex');
 end
+
+if PISYNC == 1
+    save('simulation_all_parameters_pisync');
+    save('ts_precision_pisync','yerr');     
+elseif DYNCTRL == 1
+    save('simulation_all_parameters_dynctrl');
+    save('ts_precision_dynctrl','yerr');     
+elseif MOVAVG == 1
+    save('simulation_all_parameters_movavg');
+    save('ts_precision_movavg','yerr');        
+elseif TPSN == 1
+    save('simulation_all_parameters_tpsn');
+    save('ts_precision_tpsn','yerr');    
+end
