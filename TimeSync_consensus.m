@@ -281,8 +281,9 @@ for i=1:1:nNode
     hold on;
 end 
 set(gca, 'xlim',[0 60], 'XTick',0:10:60); % axis configuration
+xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
 ylabel('$\theta_i[k]$ (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
-title('offset at convergence state');
+title('Clock offset at convergence state', 'Interpreter','latex');
 
 subplot(2,2,2); 
 for i=1:1:nNode
@@ -290,8 +291,9 @@ for i=1:1:nNode
     hold on;
 end 
 set(gca, 'xlim',[szsim-600 szsim], 'XTick',szsim-600:100:szsim); % axis configuration
+xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
 ylabel('$\theta_i[k]$ ($\mu$s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
-title('offset at steady state');
+title('Clock offset at steady state', 'Interpreter','latex');
 
 skew_ppm=zeros(szsim, nNode);
 for i=1:1:nNode
@@ -304,8 +306,9 @@ for i=1:1:nNode
     hold on;
 end 
 set(gca, 'xlim',[0 60], 'XTick',0:10:60); % axis configuration
+xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
 ylabel('$\gamma_i[k]$ (ppm)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
-title('skew at convergence state');
+title('Clock Skew at convergence state', 'Interpreter','latex');
 
 subplot(2,2,4); 
 for i=1:1:nNode
@@ -313,8 +316,9 @@ for i=1:1:nNode
     hold on;
 end 
 set(gca, 'xlim',[szsim-600 szsim], 'XTick',szsim-600:100:szsim); % axis configuration
+xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
 ylabel('$\gamma_i[k]$ (ppm)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
-title('skew at steady state');
+title('Clock Skew at steady state', 'Interpreter','latex');
 
 %%
 % plotting the tunning beta 
