@@ -4,10 +4,9 @@
 % * 
 % * Author:      Yan Zong, Xuewu Dai
 % *
-% * Descriptoin: the code in this branch is used to simulate the network
-% *              under the static controller, the corresponding paper is
-% *              submitted to IEEE Internet of Things J. Special Issue for 
-% *              peer review.
+% * Descriptoin: the code in this branch is used to compare TPSN, dynamic 
+% *              controller, moving average and PISync, the corresponding 
+% *              paper is submitted to IEEE TII for peer review.              
 % *
 % * IDE:         MATLAB R2020b
 % % ***********************************************************************
