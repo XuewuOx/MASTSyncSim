@@ -18,8 +18,8 @@ clc;
 % 1 -- enable; 0 -- disable
 PISYNC = 0; 
 DYNCTRL = 0;
-MOVAVG = 1;
-TPSN = 0;
+MOVAVG = 0;
+TPSN = 1;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
@@ -111,11 +111,16 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if PISYNC == 1
+if (PISYNC == 1 | TPSN == 1)
     alpha = 1;
-    beta = 0; % see equ (9) of Yildirim2018
-    initial_beta = 1/32768;
-
+    
+    if PISYNC == 1
+        beta = 0; % see equ (9) of Yildirim2018
+        initial_beta = 1/32768;
+    elseif TPSN == 1
+        beta = 1;
+    end 
+    
     K = [alpha 0; 0 beta];
 
     format long   
@@ -215,11 +220,11 @@ hfigsim=figure('Name','Simulation Animation');
 
 A1=kron(eye(nNode),A); % Kronecker product(克罗内克积)
 
-% B1=kron(eye(nNode),B*K); % all the initial control gains are same
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if PISYNC == 1
+if (PISYNC == 1 | TPSN == 1)
+    % B1=kron(eye(nNode),B*K); % all the initial control gains are same
     alpha_list = alpha * ones([nNode, 1]);
     beta_list = beta * ones([nNode, 1]);
     B1 = zeros([2*nNode,2*nNode]);
@@ -267,7 +272,7 @@ for k = 2:szsim
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     % the control gain from Yildirim2018, PISync
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
-    if PISYNC == 1
+    if (PISYNC == 1 | TPSN == 1)
         UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
         U = B1*UTmp;
     end
