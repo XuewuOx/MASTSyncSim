@@ -14,9 +14,9 @@ clear all;
 close all;
 clc;
 %% Simulaiton Configuration 1: Network Topology
-disp("Clock Synchronization Simulation");
+disp("Clock Synchronisation Simulation");
 
-szsim=800; % simulation time
+szsim=20000; % simulation time
 
 load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
 load('OriginalDirectedGraphwith50Nodes&60Edges.mat','nNode');
@@ -260,3 +260,53 @@ for k = 2:szsim
 end
 
 fprintf('\n Simulation Ends\n');
+
+%%
+% plotting the offset and skew outputs
+figure
+
+offset_us=zeros(szsim, nNode);
+for i=1:1:nNode
+    offset_us(:, i) = 1000000 * yerr((i-1)*2+1,:)'; % change the unit to us
+end 
+
+subplot(2,2,1); 
+for i=1:1:nNode
+    plot(offset_us(:, i));
+    hold on;
+end 
+set(gca, 'xlim',[0 60], 'XTick',0:10:60); % axis configuration
+ylabel('$\theta_i[k]$ (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+title('offset at convergence state');
+
+subplot(2,2,2); 
+for i=1:1:nNode
+    plot(offset_us(:, i));
+    hold on;
+end 
+set(gca, 'xlim',[szsim-600 szsim], 'XTick',szsim-600:100:szsim); % axis configuration
+ylabel('$\theta_i[k]$ ($\mu$s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+title('offset at steady state');
+
+skew_ppm=zeros(szsim, nNode);
+for i=1:1:nNode
+    skew_ppm(:, i) = 1000000 * yerr((i-1)*2+2,:)'; % change the unit to ppm 
+end
+
+subplot(2,2,3); 
+for i=1:1:nNode
+    plot(skew_ppm(:, i));
+    hold on;
+end 
+set(gca, 'xlim',[0 60], 'XTick',0:10:60); % axis configuration
+ylabel('$\gamma_i[k]$ (ppm)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+title('skew at convergence state');
+
+subplot(2,2,4); 
+for i=1:1:nNode
+    plot(skew_ppm(:, i));
+    hold on;
+end 
+set(gca, 'xlim',[szsim-600 szsim], 'XTick',szsim-600:100:szsim); % axis configuration
+ylabel('$\gamma_i[k]$ (ppm)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+title('skew at steady state');
