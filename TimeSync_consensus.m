@@ -104,15 +104,15 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-alpha = 1;
-beta = 0; % see equ (9) of Yildirim2018
-initial_beta = 1/32768;
-
-K = [alpha 0; 0 beta];
-
-format long   
-fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
-format short
+% alpha = 1;
+% beta = 0; % see equ (9) of Yildirim2018
+% initial_beta = 1/32768;
+% 
+% K = [alpha 0; 0 beta];
+% 
+% format long   
+% fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
+% format short
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic controller gain obtained by using the LMI technique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -191,20 +191,20 @@ hfigsim=figure('Name','Simulation Animation');
     subplot(2,2,4);    title('errors of \gamma wrt.the average');
 
 A1=kron(eye(nNode),A); % Kronecker product(克罗内克积)
-BK=B*K;
-BK1=kron(NetTree,BK);    
+% BK=B*K;
+% BK1=kron(NetTree,BK);    
 
 % B1=kron(eye(nNode),B*K); % all the initial control gains are same
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-alpha_list = alpha * ones([nNode, 1]);
-beta_list = beta * ones([nNode, 1]);
-B1 = zeros([2*nNode,2*nNode]);
-for i=1:nNode
-    B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
-    B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
-end
+% alpha_list = alpha * ones([nNode, 1]);
+% beta_list = beta * ones([nNode, 1]);
+% B1 = zeros([2*nNode,2*nNode]);
+% for i=1:nNode
+%     B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
+%     B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
+% end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic controller gain obtained by using the LMI technique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,12 +216,12 @@ D_K1=kron(eye(nNode),B*D_K);
 
 NetTreeTemp=kron(NetTree,eye(2)); % B1*L1 is the same as BK1
 
-if chkEigAc(A,B,K,NetTree)==false
-    % the close form of the NCS has unstable eigenvalue
-    warning("     Unstable eigenvalue of the networked closed loop system \n");
-else
-    disp("     Good,stable system (two eigenvalue ==1, others <1)");
-end
+% if chkEigAc(A,B,K,NetTree)==false
+%     % the close form of the NCS has unstable eigenvalue
+%     warning("     Unstable eigenvalue of the networked closed loop system \n");
+% else
+%     disp("     Good,stable system (two eigenvalue ==1, others <1)");
+% end
 strK=num2str(K);
 fprintf("     K=[%s ;\n        %s]\n", strK(1,:), strK(2,:));
 fprintf("    simulaiton is in process");
@@ -240,8 +240,8 @@ for k = 2:szsim
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     % the control gain from Yildirim2018, PISync
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
-    UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
-    U = B1*UTmp;
+%     UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
+%     U = B1*UTmp;
     
     % state and output updates, see eq.26, 27 in Hu2019      
     x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1); % state updates
@@ -250,32 +250,32 @@ for k = 2:szsim
     % update the controlling gain by using the PISync protocol
     % alpha is always equal to one in PISync
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
-    if k>3
-        y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - y(:,k-2));
-    else                    
-        if k == 2
-            y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - zeros(2*nNode,1));    
-        elseif k == 1
-            y_product = zeros(2*nNode,1);
-        end 
-    end
-    
-    for i=2:nNode       
-        
-        if y((i-1)*2+1, k) > (b*2*2 / 32768)        
-            beta_list(i, 1) = 0;
-        elseif beta_list(i, 1) == 0
-            beta_list(i, 1) = initial_beta;
-        elseif y_product((i-1)*2+1, 1) > 0
-            beta_list(i, 1) = beta_list(i, 1) * 2; % lambda^+ = 2
-            beta_list(i, 1) = max(beta_list(i, 1), initial_beta);
-        else
-            beta_list(i, 1) = beta_list(i, 1) / 3; % lambda^- = 3            
-        end 
-        
-        B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
-        B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
-    end           
+%     if k>3
+%         y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - y(:,k-2));
+%     else                    
+%         if k == 2
+%             y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - zeros(2*nNode,1));    
+%         elseif k == 1
+%             y_product = zeros(2*nNode,1);
+%         end 
+%     end
+%     
+%     for i=2:nNode       
+%         
+%         if y((i-1)*2+1, k) > (b*2*2 / 32768)        
+%             beta_list(i, 1) = 0;
+%         elseif beta_list(i, 1) == 0
+%             beta_list(i, 1) = initial_beta;
+%         elseif y_product((i-1)*2+1, 1) > 0
+%             beta_list(i, 1) = beta_list(i, 1) * 2; % lambda^+ = 2
+%             beta_list(i, 1) = max(beta_list(i, 1), initial_beta);
+%         else
+%             beta_list(i, 1) = beta_list(i, 1) / 3; % lambda^- = 3            
+%         end 
+%         
+%         B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
+%         B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
+%     end           
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
     % collect the synchronisation error for result analysis
@@ -284,7 +284,7 @@ for k = 2:szsim
     Ybar(:,k)=[mean(yk(indTheta)');mean(yk(indSkew)')];
     Ystd(:,k)=[std(yk(indTheta)');std(yk(indSkew)')];
     yerr(:,k)=yy(:,k);
-	Beta(:,k)=beta_list;
+% 	Beta(:,k)=beta_list;
    
    % for animaltion during simulation
     if (k<10) || (k<100 && (mod(k,10)==0)) ||(k>100 && mod(k,50)==0)
