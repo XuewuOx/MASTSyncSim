@@ -14,8 +14,12 @@ clear all;
 close all;
 clc;
 
-PISYNC = 1;
+% selecting the different clock offset and skew processing methods:
+% 1 -- enable; 0 -- disable
+PISYNC = 0; 
 DYNCTRL = 0;
+MOVAVG = 1;
+TPSN = 0;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
@@ -121,22 +125,34 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic controller gain obtained by using the LMI technique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if DYNCTRL == 1
+if (DYNCTRL == 1 | MOVAVG == 1)
     % K = [A_K B_K; C_K D_K]
-    run LMI.m
-    K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
+    if DYNCTRL == 1
+        run LMI.m
+        K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
+    elseif MOVAVG == 1
+        K=[1 0 0 0;
+           0 1 0 0;
+           1 0 1 0;
+           0 1 0 1]                
+    end
+    
     A_K = K(1:2, 1:2);
     B_K = K(1:2, 3:4);
     C_K = K(3:4, 1:2);
-    D_K = K(3:4, 3:4);
-
+    D_K = K(3:4, 3:4);    
+        
     format long   
     fprintf("Dynamic controller gain A_K, B_K, C_K, D_K are given by using LMI:\n"); 
     fprintf("A_K = \n"); disp(A_K);
     fprintf("B_K = \n"); disp(B_K);
     fprintf("C_K = \n"); disp(C_K);
     fprintf("D_K = \n"); disp(D_K);
-    fprintf("The H_infty performance gamma = \n"); disp(Gamma);
+    
+    if DYNCTRL == 1
+        fprintf("The H_infty performance gamma = \n"); disp(Gamma);
+    end
+    
     format short
 end 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -215,7 +231,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic controller gain obtained by using the LMI technique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if DYNCTRL == 1    
+if (DYNCTRL == 1 | MOVAVG == 1)   
     x_K=zeros(2*nNode,szsim);
     A_K1=kron(eye(nNode),A_K);
     B_K1=kron(eye(nNode),B_K);
@@ -243,7 +259,7 @@ for k = 2:szsim
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
     % dynamic controller gain obtained by using the LMI technique
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
-    if DYNCTRL == 1
+    if (DYNCTRL == 1 | MOVAVG == 1)
         UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
         x_K(:,k)=A_K1*x_K(:,k-1)+B_K1*UTmp; % x_F[k+1] = A_F * x_F[k] + B_F * y[k]    
         U = C_K1*x_K(:,k)+D_K1*UTmp; % u[k] = C_F * x_F[k] + D_F * y[k]
