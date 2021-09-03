@@ -16,7 +16,7 @@ clc;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
-szsim=20000; % simulation time
+szsim=2000; % simulation time
 
 load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
 load('OriginalDirectedGraphwith50Nodes&60Edges.mat','nNode');
@@ -182,6 +182,7 @@ for i=1:nNode
     B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
     B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
 end
+
 NetTreeTemp=kron(NetTree,eye(2)); % B1*L1 is the same as BK1
 
 if chkEigAc(A,B,K,NetTree)==false
@@ -201,7 +202,7 @@ for k = 2:szsim
     x(:,k)=A1*x(:,k-1)-B1*U+procNoise(:,k-1); % state updates
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
 
-     % update the controlling gain
+    % update the controlling gain
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
     if k>3
         y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - y(:,k-2));
