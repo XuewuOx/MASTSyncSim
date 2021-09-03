@@ -13,6 +13,9 @@
 clear all;
 close all;
 clc;
+
+PISYNC = 1;
+DYNCTRL = 0;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
@@ -104,34 +107,38 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% alpha = 1;
-% beta = 0; % see equ (9) of Yildirim2018
-% initial_beta = 1/32768;
-% 
-% K = [alpha 0; 0 beta];
-% 
-% format long   
-% fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
-% format short
+if PISYNC == 1
+    alpha = 1;
+    beta = 0; % see equ (9) of Yildirim2018
+    initial_beta = 1/32768;
+
+    K = [alpha 0; 0 beta];
+
+    format long   
+    fprintf("Static controller gain K is given by using LMI:\n"); disp(K);
+    format short
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic controller gain obtained by using the LMI technique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% K = [A_K B_K; C_K D_K]
-run LMI.m
-K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
-A_K = K(1:2, 1:2);
-B_K = K(1:2, 3:4);
-C_K = K(3:4, 1:2);
-D_K = K(3:4, 3:4);
+if DYNCTRL == 1
+    % K = [A_K B_K; C_K D_K]
+    run LMI.m
+    K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
+    A_K = K(1:2, 1:2);
+    B_K = K(1:2, 3:4);
+    C_K = K(3:4, 1:2);
+    D_K = K(3:4, 3:4);
 
-format long   
-fprintf("Dynamic controller gain A_K, B_K, C_K, D_K are given by using LMI:\n"); 
-fprintf("A_K = \n"); disp(A_K);
-fprintf("B_K = \n"); disp(B_K);
-fprintf("C_K = \n"); disp(C_K);
-fprintf("D_K = \n"); disp(D_K);
-fprintf("The H_infty performance gamma = \n"); disp(Gamma);
-format short
+    format long   
+    fprintf("Dynamic controller gain A_K, B_K, C_K, D_K are given by using LMI:\n"); 
+    fprintf("A_K = \n"); disp(A_K);
+    fprintf("B_K = \n"); disp(B_K);
+    fprintf("C_K = \n"); disp(C_K);
+    fprintf("D_K = \n"); disp(D_K);
+    fprintf("The H_infty performance gamma = \n"); disp(Gamma);
+    format short
+end 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Simulaiton Configuration 2c: Clock & Networked State Initialisation
@@ -191,28 +198,30 @@ hfigsim=figure('Name','Simulation Animation');
     subplot(2,2,4);    title('errors of \gamma wrt.the average');
 
 A1=kron(eye(nNode),A); % Kronecker product(克罗内克积)
-% BK=B*K;
-% BK1=kron(NetTree,BK);    
 
 % B1=kron(eye(nNode),B*K); % all the initial control gains are same
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% alpha_list = alpha * ones([nNode, 1]);
-% beta_list = beta * ones([nNode, 1]);
-% B1 = zeros([2*nNode,2*nNode]);
-% for i=1:nNode
-%     B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
-%     B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
-% end
+if PISYNC == 1
+    alpha_list = alpha * ones([nNode, 1]);
+    beta_list = beta * ones([nNode, 1]);
+    B1 = zeros([2*nNode,2*nNode]);
+    for i=1:nNode
+        B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
+        B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
+    end
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % dynamic controller gain obtained by using the LMI technique
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-x_K=zeros(2*nNode,szsim);
-A_K1=kron(eye(nNode),A_K);
-B_K1=kron(eye(nNode),B_K);
-C_K1=kron(eye(nNode),B*C_K);
-D_K1=kron(eye(nNode),B*D_K);
+if DYNCTRL == 1    
+    x_K=zeros(2*nNode,szsim);
+    A_K1=kron(eye(nNode),A_K);
+    B_K1=kron(eye(nNode),B_K);
+    C_K1=kron(eye(nNode),B*C_K);
+    D_K1=kron(eye(nNode),B*D_K);
+end 
 
 NetTreeTemp=kron(NetTree,eye(2)); % B1*L1 is the same as BK1
 
@@ -233,49 +242,57 @@ for k = 2:szsim
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
     % dynamic controller gain obtained by using the LMI technique
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
-    UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
-    x_K(:,k)=A_K1*x_K(:,k-1)+B_K1*UTmp; % x_F[k+1] = A_F * x_F[k] + B_F * y[k]    
-    U = C_K1*x_K(:,k)+D_K1*UTmp; % u[k] = C_F * x_F[k] + D_F * y[k]
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    if DYNCTRL == 1
+        UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
+        x_K(:,k)=A_K1*x_K(:,k-1)+B_K1*UTmp; % x_F[k+1] = A_F * x_F[k] + B_F * y[k]    
+        U = C_K1*x_K(:,k)+D_K1*UTmp; % u[k] = C_F * x_F[k] + D_F * y[k]
+    end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     % the control gain from Yildirim2018, PISync
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
-%     UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
-%     U = B1*UTmp;
+    if PISYNC == 1
+        UTmp=NetTreeTemp*y(:,k-1); % get the output differece with neighbours
+        U = B1*UTmp;
+    end
     
     % state and output updates, see eq.26, 27 in Hu2019      
     x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1); % state updates
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
             
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     % update the controlling gain by using the PISync protocol
     % alpha is always equal to one in PISync
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          
-%     if k>3
-%         y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - y(:,k-2));
-%     else                    
-%         if k == 2
-%             y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - zeros(2*nNode,1));    
-%         elseif k == 1
-%             y_product = zeros(2*nNode,1);
-%         end 
-%     end
-%     
-%     for i=2:nNode       
-%         
-%         if y((i-1)*2+1, k) > (b*2*2 / 32768)        
-%             beta_list(i, 1) = 0;
-%         elseif beta_list(i, 1) == 0
-%             beta_list(i, 1) = initial_beta;
-%         elseif y_product((i-1)*2+1, 1) > 0
-%             beta_list(i, 1) = beta_list(i, 1) * 2; % lambda^+ = 2
-%             beta_list(i, 1) = max(beta_list(i, 1), initial_beta);
-%         else
-%             beta_list(i, 1) = beta_list(i, 1) / 3; % lambda^- = 3            
-%         end 
-%         
-%         B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
-%         B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
-%     end           
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+    if PISYNC == 1
+        if k>3
+            y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - y(:,k-2));
+        else                    
+            if k == 2
+                y_product = (y(:,(k)) - y(:,k-1)) .* (y(:,(k-1)) - zeros(2*nNode,1));    
+            elseif k == 1
+                y_product = zeros(2*nNode,1);
+            end 
+        end
+
+        for i=2:nNode       
+
+            if y((i-1)*2+1, k) > (b*2*2 / 32768)        
+                beta_list(i, 1) = 0;
+            elseif beta_list(i, 1) == 0
+                beta_list(i, 1) = initial_beta;
+            elseif y_product((i-1)*2+1, 1) > 0
+                beta_list(i, 1) = beta_list(i, 1) * 2; % lambda^+ = 2
+                beta_list(i, 1) = max(beta_list(i, 1), initial_beta);
+            else
+                beta_list(i, 1) = beta_list(i, 1) / 3; % lambda^- = 3            
+            end 
+
+            B1((i-1)*2+1, (i-1)*2+1) = alpha_list(i, 1);
+            B1((i-1)*2+2, (i-1)*2+2) = beta_list(i, 1);
+        end   
+        Beta(:,k)=beta_list;
+    end 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
     % collect the synchronisation error for result analysis
@@ -283,8 +300,7 @@ for k = 2:szsim
     yk=y(:,k);
     Ybar(:,k)=[mean(yk(indTheta)');mean(yk(indSkew)')];
     Ystd(:,k)=[std(yk(indTheta)');std(yk(indSkew)')];
-    yerr(:,k)=yy(:,k);
-% 	Beta(:,k)=beta_list;
+    yerr(:,k)=yy(:,k); 	
    
    % for animaltion during simulation
     if (k<10) || (k<100 && (mod(k,10)==0)) ||(k>100 && mod(k,50)==0)
@@ -365,11 +381,13 @@ title('Clock Skew at steady state', 'Interpreter','latex');
 
 %%
 % plotting the tunning beta 
-figure
-for i=1:1:nNode
-    plot(Beta(i,:));
-    hold on;
+if PISYNC == 1
+    figure
+    for i=1:1:nNode
+        plot(Beta(i,:));
+        hold on;
+    end
+    xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+    ylabel('$\beta_i[k]$', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+    title('Evolution of $\beta_i[k]$ in the simulations', 'Interpreter','latex');
 end
-xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
-ylabel('$\beta_i[k]$', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
-title('Evolution of $\beta_i[k]$ in the simulations', 'Interpreter','latex');
