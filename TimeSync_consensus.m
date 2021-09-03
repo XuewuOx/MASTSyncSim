@@ -16,7 +16,7 @@ clc;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
-szsim=2000; % simulation time
+szsim=1000; % simulation time
 
 load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
 load('OriginalDirectedGraphwith50Nodes&60Edges.mat','nNode');
@@ -311,3 +311,13 @@ end
 set(gca, 'xlim',[szsim-600 szsim], 'XTick',szsim-600:100:szsim); % axis configuration
 ylabel('$\gamma_i[k]$ (ppm)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
 title('skew at steady state');
+
+%%
+% plotting the tunning beta 
+figure
+for i=1:1:nNode
+    plot(Beta(i,:));
+    hold on;
+end
+xlabel('Time (s)', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
+ylabel('$\beta_i[k]$', 'Interpreter','latex', 'FontSize', 13, 'FontName', 'Times New Roman');
