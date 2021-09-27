@@ -133,8 +133,10 @@ end
 if (DYNCTRL == 1 | MOVAVG == 1)
     % K = [A_K B_K; C_K D_K]
     if DYNCTRL == 1
-        run LMI.m
-        K=-K; % We use A+BKC rather than A-BKC, so let K=-K to meet your program
+        K=-[-0.039511041468828 0 -0.000000000025197 0;
+            0 -0.039511041572130 0 0.000000000010100;
+           -0.020919912004335 0 -0.775989213038119 0;
+           0 -0.004456899766823 0 -0.761027326480981]        
     elseif MOVAVG == 1
         K=[0   0   0   0; % The configurarions of moving average is from Tian2021
            0   0.5 0   0.5;
