@@ -17,8 +17,8 @@ clc;
 % selecting the different clock offset and skew processing methods:
 % 1 -- enable; 0 -- disable
 PISYNC = 0; 
-DYNCTRL = 0;
-MOVAVG = 1;
+DYNCTRL = 1;
+MOVAVG = 0;
 TPSN = 0;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
@@ -136,7 +136,8 @@ if (DYNCTRL == 1 | MOVAVG == 1)
         K=-[-0.039511041468828 0 -0.000000000025197 0;
             0 -0.039511041572130 0 0.000000000010100;
            -0.020919912004335 0 -0.775989213038119 0;
-           0 -0.004456899766823 0 -0.761027326480981];        
+           0 -0.004456899766823 0 -0.761027326480981]; 
+        Gamma=5.3330;
     elseif MOVAVG == 1
         K=[0   0   0   0; % The configurarions of moving average is from Tian2021
            0   0.5 0   0.5;
