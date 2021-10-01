@@ -16,8 +16,8 @@ clc;
 
 % selecting the different clock offset and skew processing methods:
 % 1 -- enable; 0 -- disable
-PISYNC = 0; 
-DYNCTRL = 1;
+PISYNC = 1; 
+DYNCTRL = 0;
 MOVAVG = 0;
 TPSN = 0;
 %% Simulaiton Configuration 1: Network Topology
@@ -116,7 +116,7 @@ if (PISYNC == 1 | TPSN == 1)
     
     if PISYNC == 1
         beta = 0; % see equ (9) of Yildirim2018
-        initial_beta = 1/32768;
+        initial_beta = 1/32768000;
     elseif TPSN == 1
         beta = 1;
     end 
