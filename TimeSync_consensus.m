@@ -25,12 +25,20 @@ disp("Clock Synchronisation Simulation");
 
 szsim=1000; % simulation time
 
-load('OriginalDirectedGraphwith50Nodes&60Edges.mat','L');
-load('OriginalDirectedGraphwith50Nodes&60Edges.mat','nNode');
+NetTree=[0  0  0  0  0  0  0  0  0  0;
+         -1 1  0  0  0  0  0  0  0  0;
+         -1 0  1  0  0  0  0  0  0  0;
+         -1 0  0  1  0  0  0  0  0  0;
+         -1 0  0  0  1  0  0  0  0  0;
+         -1 0  0  0  0  1  0  0  0  0;
+         -1 0  0  0  0  0  1  0  0  0;
+         -1 0  0  0  0  0  0  1  0  0;
+         -1 0  0  0  0  0  0  0  1  0;
+         -1 0  0  0  0  0  0  0  0  1]; % original Laplacian matrix
+
+nNode = 10;
 
 fprintf("The number of tree spinning network is %d \r", nNode);
-
-[NetTree]=genTreeNet(L);
 
 % directed graph
 d=diag(NetTree);  % d is the dialog vector of matrix L 
@@ -41,8 +49,8 @@ GG = plot(netG,'Layout','layered','Direction','up','LineStyle','--','NodeFontNam
 % by default 'Linewidth' is 0.5, and 'MarkerSize' is 4 
 
 highlight(GG,[1],'NodeColor',[0.6350 0.0780 0.1840], 'MarkerSize', 5.5) 
-NodeIndex=1:1:50;
-for ii=1:50
+NodeIndex=1:1:nNode;
+for ii=1:nNode
     NewNodeIndexTemp = num2str(NodeIndex(ii)-1);
     NewNodeIndex(ii) = cellstr(NewNodeIndexTemp);
 end 
