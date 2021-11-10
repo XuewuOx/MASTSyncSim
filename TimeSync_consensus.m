@@ -17,9 +17,9 @@ clc;
 % selecting the different clock offset and skew processing methods:
 % 1 -- enable; 0 -- disable
 PISYNC = 0; 
-DYNCTRL = 1;
+DYNCTRL = 0;
 MOVAVG = 0;
-TPSN = 0;
+TPSN = 1;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
@@ -91,7 +91,7 @@ disp(NetTree);
 
 sigma1sqr=10^-12; % variance of offset noise, from Clock A of Giorgi2011
 sigma2sqr=10^-12; % variance of skew noise, from Clock A of Giorgi2011
-sigma3sqr=(4*10^(-6))^2; % variance of measurement noise, from Zong2019c
+sigma3sqr=(0.3*10^(-6))^2; % variance of measurement noise, from Zong2019c
 
 mu=[0 0];
 R=[sigma1sqr 0;0 sigma2sqr]; % covariance of process noise (NO USE)
@@ -108,13 +108,23 @@ fprintf("    offset measurement noise std = %d\r", sqrt(sigma3sqr));
 % odd row of measNoise are (1) measurement noise of theta (1-by-sz)
 % odd row of measNoise are (2) measurement noise of gamma (1-by-sz)
 
-procNoise=[];
-measNoise=[];
+procNoise=[]; % the system noise due to clock skew and offset
+measNoise=[]; % the measurement noise due to timestamping uncertainty
 
 for k=1:nNode
     procNoise((k-1)*2+1:(k-1)*2+2,:)=[sqrt(sigma1sqr)*randn(1,szsim);sqrt(sigma2sqr)*randn(1,szsim)];
     measNoise((k-1)*2+1:(k-1)*2+2,:)=mvnrnd(mu,Q,szsim)'; 
 end
+
+% processing delay due to the architecture of microprocessor
+eta_mean=120/1000000; % the mean value of processing delay is 120us, according to IoTJ special issue
+eta_dev=4*10^(-6); % the std deviation of processing delay is around 0.3us
+eta = zeros(2*nNode, szsim);
+
+for k=2:nNode
+    eta(2*k-1,:)=[eta_mean+eta_dev*randn(1,szsim)];
+end
+
 %% Simulaiton Configuration 2b: Controller Design  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % the control gain from Yildirim2018, PISync
@@ -289,7 +299,8 @@ for k = 2:szsim
     end
     
     % state and output updates, see eq.26, 27 in Hu2019      
-    x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1); % state updates
+    x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1)-eta(:,k-1); % state updates, 
+                                               % eta is due to the prcocessing delay
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
             
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
