@@ -17,9 +17,9 @@ clc;
 % selecting the different clock offset and skew processing methods:
 % 1 -- enable; 0 -- disable
 PISYNC = 0; 
-DYNCTRL = 0;
+DYNCTRL = 1;
 MOVAVG = 0;
-TPSN = 1;
+TPSN = 0;
 %% Simulaiton Configuration 1: Network Topology
 disp("Clock Synchronisation Simulation");
 
@@ -91,7 +91,7 @@ disp(NetTree);
 
 sigma1sqr=10^-12; % variance of offset noise, from Clock A of Giorgi2011
 sigma2sqr=10^-12; % variance of skew noise, from Clock A of Giorgi2011
-sigma3sqr=(0.3*10^(-6))^2; % variance of measurement noise, from Zong2019c
+sigma3sqr=(4*10^(-6))^2; % variance of measurement noise, from Zong2019c
 
 mu=[0 0];
 R=[sigma1sqr 0;0 sigma2sqr]; % covariance of process noise (NO USE)
@@ -151,10 +151,10 @@ end
 if (DYNCTRL == 1 | MOVAVG == 1)
     % K = [A_K B_K; C_K D_K]
     if DYNCTRL == 1
-        K=[0.0527 0 -0.000000000000236 0;
-           0 0.0527 0 0.0000000000000151;
-           0.0000192 0 0.776 0;
-           0 0.00000509 0 0.761]; 
+        K=[0.0519 0 -0.000000000000245 0;
+           0 0.0519 0 0.0000000000000149;
+           0.0000227 0 0.804 0;
+           0 0.00000581 0 0.761]; 
         Gamma=5.3330;
     elseif MOVAVG == 1
         K=[0   0   0   0; % The configurarions of moving average is from Tian2021
@@ -299,7 +299,8 @@ for k = 2:szsim
     end
     
     % state and output updates, see eq.26, 27 in Hu2019      
-    x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1)-eta(:,k-1); % state updates, 
+    x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1); % state updates, 
+%     x(:,k)=A1*x(:,k-1)-U+procNoise(:,k-1)-eta(:,k-1); % state updates,     
                                                % eta is due to the prcocessing delay
     y(:,k)=x(:,k)+measNoise(:,k); % output updates
             
@@ -441,8 +442,8 @@ if PISYNC == 1
     save('simulation_all_parameters_pisync');
     save('ts_precision_pisync','yerr');     
 elseif DYNCTRL == 1
-    save('simulation_all_parameters_dynctrl');
-    save('ts_precision_dynctrl','yerr');     
+    save('simulation_all_parameters_dynctrl_v2');
+    save('ts_precision_dynctrl_v2','yerr');     
 elseif MOVAVG == 1
     save('simulation_all_parameters_movavg');
     save('ts_precision_movavg','yerr');        
